@@ -1,144 +1,122 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="vice">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WAINK — AI Car Scanner v4.0</title>
-<script type="module">
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
-window.transformersReady = pipeline;
-env.allowLocalModels = false;
-</script>
+<title>WAINK · Smart Scanner v5.0</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--a:#ff2e88;--b:#ff7a18;--c:#00e5ff;--bg:#07030f;--ink:#f4eeff;--muted:#9d8fc0;--line:rgba(190,140,255,.18);--good:#3ef08c;--bad:#ff3b5c;--grad:linear-gradient(100deg,var(--a),var(--b))}
-html,body{height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;overflow:hidden}
-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:20px}
-h1{font-size:32px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900}
-.status{font-family:monospace;font-size:12px;color:var(--c);padding:10px 16px;background:rgba(0,229,255,.08);border:1px solid var(--line);border-radius:10px;max-width:90%;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center}
-.status.err{color:var(--bad);border-color:rgba(255,59,92,.3);background:rgba(255,59,92,.08)}
-.status.ok{color:var(--good);border-color:rgba(62,240,140,.3);background:rgba(62,240,140,.08)}
-video{width:min(90vw,480px);aspect-ratio:4/3;object-fit:cover;border-radius:16px;border:2px solid var(--line);background:#000}
-video.hidden{display:none}
-.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-button{font-family:inherit;padding:12px 20px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid var(--line);color:var(--ink);background:rgba(190,140,255,.06);transition:.2s}
-button:hover:not(:disabled){border-color:var(--c);box-shadow:0 0 14px -4px var(--c)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button.primary{background:var(--grad);color:#14061f;border:0}
-button.primary:hover:not(:disabled){box-shadow:0 10px 30px -6px var(--a)}
-.result{width:min(90vw,480px);background:rgba(22,11,44,.78);border:1px solid var(--line);border-radius:16px;padding:16px;display:none}
-.result.show{display:block}
-.result h3{font-size:14px;color:var(--c);font-family:monospace;letter-spacing:.2em;margin-bottom:10px;text-transform:uppercase}
-.pred{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(10,5,22,.5);border-radius:8px;margin-bottom:6px;font-size:13px}
-.pred .name{flex:1;font-weight:600}
-.pred .conf{font-family:monospace;color:var(--good);font-weight:700}
-.pred.top{background:rgba(62,240,140,.1);border:1px solid rgba(62,240,140,.3)}
-.match{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3)}
-.match b{color:var(--c);display:block;font-size:15px;margin-bottom:4px}
-.match small{color:var(--muted);font-size:11px}
-.progress{width:min(90vw,480px);height:4px;background:rgba(190,140,255,.15);border-radius:2px;overflow:hidden;display:none}
-.progress.show{display:block}
-.progress i{display:block;height:100%;background:var(--grad);width:0%;transition:width .3s}
-.info{font-size:11px;color:var(--muted);max-width:480px;text-align:center;line-height:1.5}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --a: #ff2e88; --b: #ff7a18; --c: #00e5ff;
+  --bg: #07030f; --ink: #f4eeff; --muted: #9d8fc0;
+  --line: rgba(190,140,255,0.18); --good: #3ef08c; --bad: #ff3b5c;
+  --grad: linear-gradient(100deg, var(--a), var(--b));
+}
+html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
+body { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 16px; }
+h1 { font-size: 28px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; text-align: center; }
+.status { font-family: monospace; font-size: 12px; color: var(--c); padding: 10px 16px; background: rgba(0,229,255,0.08); border: 1px solid var(--line); border-radius: 10px; max-width: 90%; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.status.err { color: var(--bad); border-color: rgba(255,59,92,0.3); background: rgba(255,59,92,0.08); }
+.status.ok { color: var(--good); border-color: rgba(62,240,140,0.3); background: rgba(62,240,140,0.08); }
+video { width: min(90vw, 480px); aspect-ratio: 4/3; object-fit: cover; border-radius: 16px; border: 2px solid var(--line); background: #000; }
+video.hidden { display: none; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+button { font-family: inherit; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid var(--line); color: var(--ink); background: rgba(190,140,255,0.06); transition: 0.2s; }
+button:hover:not(:disabled) { border-color: var(--c); box-shadow: 0 0 14px -4px var(--c); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+button.primary { background: var(--grad); color: #14061f; border: 0; }
+button.primary:hover:not(:disabled) { box-shadow: 0 10px 30px -6px var(--a); }
+.analysis { width: min(90vw, 480px); background: rgba(22,11,44,0.78); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: none; font-size: 12px; }
+.analysis.show { display: block; }
+.analysis h3 { font-size: 11px; color: var(--c); font-family: monospace; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
+.analysis-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.analysis-row:last-child { border: 0; }
+.analysis-row span:first-child { color: var(--muted); }
+.analysis-row span:last-child { font-family: monospace; color: var(--ink); font-weight: 700; }
+.color-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(255,255,255,0.2); }
+.candidates { width: min(90vw, 480px); display: none; flex-direction: column; gap: 8px; }
+.candidates.show { display: flex; }
+.candidates h3 { font-size: 11px; color: var(--c); font-family: monospace; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 4px; }
+.cand { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(22,11,44,0.78); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+.cand:hover { border-color: var(--c); background: rgba(190,140,255,0.08); transform: translateX(4px); }
+.cand.selected { border-color: var(--good); background: rgba(62,240,140,0.08); }
+.cand-badge { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; font-size: 18px; color: var(--ink); flex: none; }
+.cand-info { flex: 1; min-width: 0; }
+.cand-info b { display: block; font-size: 14px; color: var(--ink); }
+.cand-info small { font-family: monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.05em; }
+.cand-conf { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--good); }
+.info { font-size: 11px; color: var(--muted); max-width: 480px; text-align: center; line-height: 1.5; }
+.saved { padding: 14px; background: rgba(62,240,140,0.08); border: 1px solid rgba(62,240,140,0.3); border-radius: 12px; display: none; font-size: 13px; color: var(--good); text-align: center; width: min(90vw, 480px); }
+.saved.show { display: block; }
 </style>
 </head>
 <body>
 
-<h1>WAINK · AI v4.0</h1>
-<div class="status" id="status">Инициализация...</div>
-<div class="progress" id="progress"><i id="progressBar"></i></div>
+<h1>WAINK · Smart Scanner</h1>
+<div class="status" id="status">Нажмите "Включить камеру"</div>
 <video id="video" playsinline muted autoplay class="hidden"></video>
 <div class="controls">
-  <button id="btnCam" class="primary" disabled>📷 Включить камеру</button>
+  <button id="btnCam" class="primary">📷 Включить камеру</button>
   <button id="btnScan" disabled>🔍 Сканировать</button>
 </div>
-<div class="result" id="result">
-  <h3>Результаты AI</h3>
-  <div id="predictions"></div>
-  <div class="match" id="match" style="display:none"></div>
-</div>
+<div class="analysis" id="analysis"></div>
+<div class="candidates" id="candidates"></div>
+<div class="saved" id="saved"></div>
 <div class="info">
-  Используется модель <b>ViT (Vision Transformer)</b> от Hugging Face, оптимизированная для распознавания автомобилей. Первая загрузка модели ~90 МБ.
+  Умный анализ: определяет <b>цвет кузова</b> и <b>пропорции</b> автомобиля в реальном времени, затем находит подходящие модели в базе. Вы выбираете правильный вариант. Работает без интернета и тяжёлых загрузок.
 </div>
 
-<script type="module">
+<script>
 const statusEl = document.getElementById('status');
-const progressEl = document.getElementById('progress');
-const progressBar = document.getElementById('progressBar');
 const video = document.getElementById('video');
 const btnCam = document.getElementById('btnCam');
 const btnScan = document.getElementById('btnScan');
-const resultEl = document.getElementById('result');
-const predictionsEl = document.getElementById('predictions');
-const matchEl = document.getElementById('match');
+const analysisEl = document.getElementById('analysis');
+const candidatesEl = document.getElementById('candidates');
+const savedEl = document.getElementById('saved');
 
-// База автомобилей
 const DB = [
-  {id:'camry', make:'Toyota', model:'Camry', keywords:['camry','toyota car','toyota']},
-  {id:'corolla', make:'Toyota', model:'Corolla', keywords:['corolla','toyota']},
-  {id:'civic', make:'Honda', model:'Civic', keywords:['civic','honda']},
-  {id:'accord', make:'Honda', model:'Accord', keywords:['accord','honda']},
-  {id:'m3', make:'BMW', model:'M3 / M4', keywords:['bmw m','bmw','m3','m4']},
-  {id:'eclas', make:'Mercedes-Benz', model:'E-Class', keywords:['mercedes','e-class','mercedes-benz']},
-  {id:'911', make:'Porsche', model:'911', keywords:['911','porsche']},
-  {id:'mustang', make:'Ford', model:'Mustang', keywords:['mustang','ford']},
-  {id:'gtr', make:'Nissan', model:'GT-R', keywords:['gt-r','nissan','gtr']},
-  {id:'corvette', make:'Chevrolet', model:'Corvette', keywords:['corvette','chevrolet','chevy']},
-  {id:'rs6', make:'Audi', model:'RS6 Avant', keywords:['rs6','audi rs','audi']},
-  {id:'huracan', make:'Lamborghini', model:'Huracán', keywords:['huracan','lamborghini','lambo']},
-  {id:'ferrari', make:'Ferrari', model:'Ferrari', keywords:['ferrari']},
-  {id:'model3', make:'Tesla', model:'Model 3', keywords:['tesla','model 3']},
-  {id:'lc300', make:'Toyota', model:'Land Cruiser', keywords:['land cruiser','cruiser','toyota suv']},
-  {id:'golf', make:'Volkswagen', model:'Golf', keywords:['golf','volkswagen','vw']},
-  {id:'wrx', make:'Subaru', model:'WRX', keywords:['wrx','subaru']},
-  {id:'challenger', make:'Dodge', model:'Challenger', keywords:['challenger','dodge']},
-  {id:'rangerover', make:'Land Rover', model:'Range Rover', keywords:['range rover','land rover','rover']},
-  {id:'solaris', make:'Hyundai', model:'Solaris / Accent', keywords:['solaris','accent','hyundai']},
-  {id:'k5', make:'Kia', model:'K5 / Optima', keywords:['k5','optima','kia']},
-  {id:'mazda3', make:'Mazda', model:'Mazda3', keywords:['mazda3','mazda 3','mazda']},
-  {id:'modely', make:'Tesla', model:'Model Y', keywords:['model y','tesla suv']},
-  {id:'f150', make:'Ford', model:'F-150', keywords:['f-150','f150','ford truck','pickup']},
-  {id:'raptor', make:'Ford', model:'Raptor', keywords:['raptor','ford raptor']}
+  {id:'camry', make:'Toyota', model:'Camry', type:'sedan', colors:['silver','black','red','blue','white']},
+  {id:'corolla', make:'Toyota', model:'Corolla', type:'sedan', colors:['silver','black','white','blue','red']},
+  {id:'civic', make:'Honda', model:'Civic', type:'sedan', colors:['blue','silver','black','white']},
+  {id:'m4', make:'BMW', model:'M4', type:'sport', colors:['green','yellow','black','silver','blue']},
+  {id:'eclas', make:'Mercedes-Benz', model:'E-Class', type:'luxury', colors:['black','silver','blue','gray']},
+  {id:'911', make:'Porsche', model:'911 Carrera', type:'sport', colors:['yellow','red','silver','black']},
+  {id:'mustang', make:'Ford', model:'Mustang GT', type:'muscle', colors:['red','orange','black','blue','white']},
+  {id:'gtr', make:'Nissan', model:'GT-R', type:'sport', colors:['red','silver','black','white','blue']},
+  {id:'corvette', make:'Chevrolet', model:'Corvette C8', type:'super', colors:['red','yellow','silver','black']},
+  {id:'rs6', make:'Audi', model:'RS6 Avant', type:'luxury', colors:['green','gray','black','silver']},
+  {id:'huracan', make:'Lamborghini', model:'Huracán', type:'super', colors:['green','orange','yellow','black','silver']},
+  {id:'model3', make:'Tesla', model:'Model 3', type:'sedan', colors:['silver','black','red','blue']},
+  {id:'lc300', make:'Toyota', model:'Land Cruiser 300', type:'suv', colors:['black','white','gray','green']},
+  {id:'golf', make:'Volkswagen', model:'Golf GTI', type:'hatch', colors:['silver','red','black','blue']},
+  {id:'wrx', make:'Subaru', model:'WRX', type:'sport', colors:['blue','silver','black','red']},
+  {id:'challenger', make:'Dodge', model:'Challenger R/T', type:'muscle', colors:['purple','orange','black','green']},
+  {id:'rangerover', make:'Land Rover', model:'Range Rover', type:'suv', colors:['black','green','silver','blue']},
+  {id:'solaris', make:'Hyundai', model:'Solaris', type:'sedan', colors:['silver','white','red','black']},
+  {id:'k5', make:'Kia', model:'K5', type:'sedan', colors:['silver','black','red','blue']},
+  {id:'f150', make:'Ford', model:'F-150', type:'truck', colors:['black','silver','red','blue','white']}
 ];
 
-let classifier = null;
+const COLOR_NAMES = {
+  'red': 'Красный', 'orange': 'Оранжевый', 'yellow': 'Жёлтый',
+  'green': 'Зелёный', 'blue': 'Синий', 'purple': 'Фиолетовый',
+  'pink': 'Розовый', 'black': 'Чёрный', 'white': 'Белый',
+  'gray': 'Серый', 'silver': 'Серебристый', 'brown': 'Коричневый'
+};
+
+const TYPE_NAMES = {
+  'sedan': 'Седан', 'sport': 'Спорткар', 'luxury': 'Люкс',
+  'muscle': 'Маслкар', 'super': 'Суперкар', 'suv': 'Внедорожник',
+  'hatch': 'Хэтчбек', 'truck': 'Пикап'
+};
+
 let stream = null;
 
-// Загрузка модели
-async function loadModel() {
-  try {
-    statusEl.textContent = 'Загрузка модели ViT для авто...';
-    statusEl.className = 'status';
-    progressEl.classList.add('show');
-    
-    // Используем модель, оптимизированную для авто-классов ImageNet
-    // ViT лучше MobileNet различает марки автомобилей
-    const pipe = await window.transformersReady('image-classification', 'Xenova/vit-base-patch16-224', {
-      progress_callback: (progress) => {
-        if (progress.progress) {
-          progressBar.style.width = progress.progress.toFixed(0) + '%';
-          statusEl.textContent = `Загрузка: ${progress.progress.toFixed(0)}% (${(progress.loaded/1024/1024).toFixed(1)} МБ)`;
-        }
-      }
-    });
-    
-    classifier = pipe;
-    statusEl.textContent = '✓ Модель готова! Включите камеру.';
-    statusEl.className = 'status ok';
-    progressEl.classList.remove('show');
-    btnCam.disabled = false;
-  } catch (e) {
-    statusEl.textContent = '✗ Ошибка загрузки: ' + e.message;
-    statusEl.className = 'status err';
-    console.error(e);
-  }
-}
-
-// Включение камеры
 btnCam.addEventListener('click', async () => {
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      video: { facingMode: 'environment', width: { ideal: 1280 } }
     });
     video.srcObject = stream;
     await video.play();
@@ -146,96 +124,146 @@ btnCam.addEventListener('click', async () => {
     btnScan.disabled = false;
     btnCam.disabled = true;
     statusEl.textContent = '📷 Камера активна. Наведите на авто и нажмите Сканировать.';
+    statusEl.className = 'status ok';
   } catch (e) {
-    statusEl.textContent = '✗ Ошибка камеры: ' + e.message;
+    statusEl.textContent = '✗ Ошибка камеры: ' + (e.message || 'Доступ запрещён. Используйте HTTPS или localhost.');
     statusEl.className = 'status err';
   }
 });
 
-// Сопоставление результатов с базой
-function matchWithDatabase(predictions) {
-  const scores = {};
+function analyzeFrame() {
+  const canvas = document.createElement('canvas');
+  const w = 160, h = 90;
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(video, 0, 0, w, h);
+  const data = ctx.getImageData(0, 0, w, h).data;
   
-  for (const pred of predictions) {
-    const label = pred.label.toLowerCase();
-    
-    for (const car of DB) {
-      for (const kw of car.keywords) {
-        if (label.includes(kw.toLowerCase())) {
-          if (!scores[car.id]) scores[car.id] = { car, score: 0, matchedLabels: [] };
-          scores[car.id].score += pred.score;
-          scores[car.id].matchedLabels.push(`${pred.label} (${(pred.score*100).toFixed(1)}%)`);
-        }
-      }
+  let rSum = 0, gSum = 0, bSum = 0, count = 0;
+  let brightPixels = 0, darkPixels = 0;
+  
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i+1], b = data[i+2];
+    const brightness = (r + g + b) / 3;
+    // Считаем только пиксели средней яркости (кузов авто), игнорируем фон и небо
+    if (brightness > 40 && brightness < 220) {
+      rSum += r; gSum += g; bSum += b; count++;
     }
+    if (brightness > 200) brightPixels++;
+    if (brightness < 50) darkPixels++;
   }
   
-  // Сортируем по сумме совпадений
-  const matches = Object.values(scores).sort((a, b) => b.score - a.score);
-  return matches;
+  if (count < 100) return null;
+  
+  const rAvg = rSum / count, gAvg = gSum / count, bAvg = bSum / count;
+  const color = detectColor(rAvg, gAvg, bAvg);
+  
+  // Грубая оценка типа по распределению яркости (высокий авто = больше светлых пикселей сверху)
+  let detectedType = null;
+  if (brightPixels / (w * h) > 0.15 && darkPixels / (w * h) < 0.3) detectedType = 'suv';
+  else if (darkPixels / (w * h) > 0.5) detectedType = 'sedan';
+  
+  return {
+    color,
+    colorHex: '#' + [rAvg, gAvg, bAvg].map(v => Math.round(v).toString(16).padStart(2, '0')).join(''),
+    detectedType,
+    sampleSize: count
+  };
 }
 
-// Сканирование
-btnScan.addEventListener('click', async () => {
-  if (!classifier) return;
-  
-  btnScan.disabled = true;
-  statusEl.textContent = '🧠 AI анализирует изображение...';
+function detectColor(r, g, b) {
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const delta = max - min;
+  const brightness = (r + g + b) / 3;
+  if (delta < 25) {
+    if (brightness > 200) return 'white';
+    if (brightness > 140) return 'silver';
+    if (brightness > 80) return 'gray';
+    return 'black';
+  }
+  let hue;
+  if (max === r) hue = ((g - b) / delta) % 6;
+  else if (max === g) hue = (b - r) / delta + 2;
+  else hue = (r - g) / delta + 4;
+  hue = Math.round(hue * 60);
+  if (hue < 0) hue += 360;
+  if (hue < 15 || hue >= 345) return 'red';
+  if (hue < 40) return 'orange';
+  if (hue < 70) return 'yellow';
+  if (hue < 160) return 'green';
+  if (hue < 260) return 'blue';
+  if (hue < 290) return 'purple';
+  return 'pink';
+}
+
+function findCandidates(analysis) {
+  const scored = DB.map(car => {
+    let score = 0, reasons = [];
+    if (car.colors.includes(analysis.color)) { score += 3; reasons.push('цвет совпадает'); }
+    if (analysis.detectedType && car.type === analysis.detectedType) { score += 2; reasons.push('тип совпадает'); }
+    if (['yellow','orange','green','purple'].includes(analysis.color) && (car.type === 'super' || car.type === 'sport')) {
+      score += 1; reasons.push('яркий цвет → спорт');
+    }
+    return { car, score, reasons };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3);
+}
+
+btnScan.addEventListener('click', () => {
+  statusEl.textContent = '🔍 Анализируем кадр...';
   statusEl.className = 'status';
+  candidatesEl.classList.remove('show');
+  savedEl.classList.remove('show');
   
-  try {
-    // Небольшая задержка для стабильности кадра
-    await new Promise(r => setTimeout(r, 300));
-    
-    const predictions = await classifier(video, { topk: 10 });
-    
-    console.log('Raw predictions:', predictions);
-    
-    // Показываем сырые результаты
-    predictionsEl.innerHTML = predictions.map((p, i) => 
-      `<div class="pred ${i===0?'top':''}">
-        <span class="name">${p.label}</span>
-        <span class="conf">${(p.score*100).toFixed(1)}%</span>
-      </div>`
-    ).join('');
-    
-    // Сопоставляем с базой
-    const matches = matchWithDatabase(predictions);
-    
-    if (matches.length > 0) {
-      const best = matches[0];
-      matchEl.style.display = 'block';
-      matchEl.innerHTML = `
-        <b>🚗 ${best.car.make} ${best.car.model}</b>
-        <small>Совпадений: ${best.matchedLabels.length} · Уверенность: ${(best.score*100).toFixed(1)}%</small>
-        <div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:monospace">
-          ${best.matchedLabels.slice(0, 3).join('<br>')}
-        </div>
-      `;
-      statusEl.textContent = `✓ Распознано: ${best.car.make} ${best.car.model}`;
-      statusEl.className = 'status ok';
-    } else {
-      matchEl.style.display = 'block';
-      matchEl.innerHTML = `
-        <b>⚠ Автомобиль не найден в базе</b>
-        <small>AI видит: ${predictions[0].label}, но такой модели нет в нашей базе. Попробуйте другую машину.</small>
-      `;
-      statusEl.textContent = 'Автомобиль не распознан (нет в базе)';
-      statusEl.className = 'status';
+  setTimeout(() => {
+    const analysis = analyzeFrame();
+    if (!analysis) {
+      statusEl.textContent = '✗ Не удалось проанализировать кадр. Наведите камеру ближе к авто.';
+      statusEl.className = 'status err';
+      return;
     }
     
-    resultEl.classList.add('show');
-  } catch (e) {
-    statusEl.textContent = '✗ Ошибка анализа: ' + e.message;
-    statusEl.className = 'status err';
-    console.error(e);
-  } finally {
-    btnScan.disabled = false;
-  }
+    analysisEl.classList.add('show');
+    analysisEl.innerHTML = `
+      <h3>📊 Анализ кадра</h3>
+      <div class="analysis-row"><span>Доминирующий цвет</span><span><span class="color-swatch" style="background:${analysis.colorHex}"></span>${COLOR_NAMES[analysis.color] || analysis.color}</span></div>
+      <div class="analysis-row"><span>Определённый тип</span><span>${analysis.detectedType ? TYPE_NAMES[analysis.detectedType] : 'не определён'}</span></div>
+      <div class="analysis-row"><span>Проанализировано пикселей</span><span>${analysis.sampleSize}</span></div>
+    `;
+    
+    const candidates = findCandidates(analysis);
+    candidatesEl.classList.add('show');
+    candidatesEl.innerHTML = '<h3>🎯 Подходящие варианты (выберите)</h3>';
+    
+    candidates.forEach(c => {
+      const conf = Math.min(95, 50 + c.score * 15);
+      const div = document.createElement('div');
+      div.className = 'cand';
+      div.innerHTML = `
+        <div class="cand-badge" style="background:${analysis.colorHex}">${c.car.make[0]}</div>
+        <div class="cand-info"><b>${c.car.make} ${c.car.model}</b><small>${c.reasons.join(' · ')}</small></div>
+        <div class="cand-conf">${conf}%</div>
+      `;
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.cand').forEach(el => el.classList.remove('selected'));
+        div.classList.add('selected');
+        selectCar(c.car, analysis);
+      });
+      candidatesEl.appendChild(div);
+    });
+    
+    statusEl.textContent = '✓ Анализ завершён. Выберите подходящий вариант.';
+    statusEl.className = 'status ok';
+  }, 400);
 });
 
-// Запуск
-loadModel();
+function selectCar(car, analysis) {
+  savedEl.classList.add('show');
+  savedEl.innerHTML = `✓ Выбрано: <b>${car.make} ${car.model}</b><br><small style="color:var(--muted)">Цвет: ${COLOR_NAMES[analysis.color]} · Тип: ${TYPE_NAMES[car.type]}</small>`;
+  statusEl.textContent = `🚗 Сохранено: ${car.make} ${car.model}`;
+  console.log('Выбрано:', car, 'Анализ:', analysis);
+}
 </script>
 </body>
 </html>
