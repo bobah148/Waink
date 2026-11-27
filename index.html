@@ -16,7 +16,6 @@
 html,body{height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;overflow-x:hidden}
 body{min-height:100vh;display:flex;flex-direction:column}
 
-/* Splash */
 .splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#1c0a38,#0b0616 45%,#2a0d2e);padding:24px;transition:opacity .5s}
 .splash.gone{opacity:0;pointer-events:none}
 .s-logo{font-size:clamp(44px,13vw,58px);font-weight:900;line-height:1;background:linear-gradient(110deg,var(--a),var(--b) 40%,#ffd60a 55%,var(--a) 75%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 30px rgba(255,46,136,.45))}
@@ -35,7 +34,6 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .s-btn:disabled{opacity:.4;cursor:not-allowed}
 .s-note{font-size:10px;color:var(--muted);margin-top:16px;line-height:1.5;max-width:300px;text-align:center;opacity:.8}
 
-/* App */
 .app{flex:1;display:flex;flex-direction:column;padding:16px;gap:14px;max-width:560px;width:100%;margin:0 auto}
 .top{display:flex;align-items:center;gap:10px}
 .logo{font-size:20px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -43,13 +41,15 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .money{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--good);text-shadow:0 0 10px rgba(62,240,140,.5)}
 
 .status-bar{font-family:var(--mono);font-size:11px;padding:10px 14px;background:rgba(0,229,255,.06);border:1px solid var(--line);border-radius:10px;color:var(--c);min-height:40px;display:flex;align-items:center;gap:8px}
-.status-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);flex:none}
-.status-bar.err .dot{background:var(--bad);box-shadow:0 0 8px var(--bad)}
-.status-bar.ok .dot{background:var(--good);box-shadow:0 0 8px var(--good)}
+.status-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);flex:none;animation:pulse 2s ease infinite}
+.status-bar.err .dot{background:var(--bad);box-shadow:0 0 8px var(--bad);animation:none}
+.status-bar.ok .dot{background:var(--good);box-shadow:0 0 8px var(--good);animation:none}
+.status-bar.working .dot{background:var(--warn);box-shadow:0 0 8px var(--warn);animation:pulse .5s ease infinite}
+@keyframes pulse{50%{opacity:.3}}
 
 .cam-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;border-radius:16px;border:2px solid var(--line);overflow:hidden}
 .cam-wrap video{width:100%;height:100%;object-fit:cover;display:block}
-.cam-wrap .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px}
+.cam-wrap .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px;pointer-events:none}
 
 .controls{display:flex;gap:8px;flex-wrap:wrap}
 .btn{flex:1;min-width:100px;padding:12px 16px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid var(--line);color:var(--ink);background:rgba(190,140,255,.06);transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -59,7 +59,6 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .btn.primary:hover:not(:disabled){box-shadow:0 10px 30px -6px var(--a)}
 .btn.big{flex:2}
 
-/* Result panel */
 .result{background:rgba(22,11,44,.78);border:1px solid var(--line);border-radius:16px;padding:16px;display:none;animation:slide .4s ease}
 .result.show{display:block}
 @keyframes slide{from{opacity:0;transform:translateY(10px)}}
@@ -85,17 +84,14 @@ body{min-height:100vh;display:flex;flex-direction:column}
 
 .actions{display:flex;gap:8px;margin-top:14px}
 
-/* Saved */
 .saved{background:rgba(62,240,140,.08);border:1px solid rgba(62,240,140,.3);border-radius:12px;padding:14px;display:none;text-align:center;font-size:13px;color:var(--good)}
 .saved.show{display:block}
 .saved b{font-size:16px;display:block;margin-bottom:4px}
 
-/* Info */
 .info-box{font-size:10px;color:var(--muted);padding:10px;border:1px solid var(--line);border-radius:10px;line-height:1.5}
 .info-box b{color:var(--c)}
 
-/* Toasts */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;background:rgba(30,15,58,.96);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;z-index:9999;backdrop-filter:blur(10px);box-shadow:0 10px 30px -10px rgba(0,0,0,.8);animation:tin .3s ease}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;background:rgba(30,15,58,.96);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;z-index:9999;backdrop-filter:blur(10px);box-shadow:0 10px 30px -10px rgba(0,0,0,.8);animation:tin .3s ease;max-width:90%;text-align:center}
 .toast.good{border-color:var(--good);box-shadow:0 0 20px -5px var(--good)}
 .toast.bad{border-color:var(--bad)}
 @keyframes tin{from{opacity:0;transform:translate(-50%,-10px)}}
@@ -103,7 +99,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 </head>
 <body>
 
-<!-- Splash screen -->
+<!-- Splash -->
 <div class="splash" id="splash">
   <div class="s-logo">WAINK</div>
   <div class="s-tag">AI · CAR · INTELLIGENCE</div>
@@ -111,15 +107,15 @@ body{min-height:100vh;display:flex;flex-direction:column}
   <div class="s-status" id="loadStatus">Инициализация...</div>
   <div class="s-btns">
     <button class="s-btn primary" id="btnStartCam" disabled>📷 Камера + AI</button>
-    <button class="s-btn ghost" id="btnStartDemo">🎮 Демо-режим</button>
+    <button class="s-btn ghost" id="btnStartDemo">🖼️ Демо (без камеры)</button>
   </div>
   <p class="s-note">AI-модель ViT загружается (~86 МБ) — один раз, потом кэшируется браузером. Работает локально через Transformers.js.</p>
 </div>
 
-<!-- Main app -->
+<!-- App -->
 <div class="app" id="app">
   <div class="top">
-    <div class="logo">WAINK<small>AI SCANNER v4.0</small></div>
+    <div class="logo">WAINK<small>AI SCANNER v4.1</small></div>
     <div class="money" id="money">$ 0</div>
   </div>
 
@@ -139,7 +135,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
   </div>
 
   <div class="result" id="resultPanel">
-    <h3>🔬 Сырые результаты AI</h3>
+    <h3>🔬 Результаты AI</h3>
     <div class="ai-raw" id="aiRaw"></div>
     <div class="matched" id="matchedBox" style="display:none">
       <div class="matched-title">🎯 Сопоставлено с базой (выберите)</div>
@@ -151,17 +147,16 @@ body{min-height:100vh;display:flex;flex-direction:column}
   <div class="saved" id="saved"></div>
 
   <div class="info-box">
-    <b>Как это работает:</b> модель ViT (Vision Transformer) от Hugging Face анализирует кадр с камеры и возвращает топ-5 классов из ImageNet. Система сопоставляет их с базой автомобилей по ключевым словам. Если AI ошибся — выберите правильный вариант вручную.
+    <b>Как это работает:</b> модель ViT от Hugging Face анализирует кадр с камеры и возвращает топ-5 классов. Система сопоставляет их с базой из 40+ автомобилей. Если AI ошибся — выберите правильный вариант вручную.
   </div>
 </div>
 
 <script type="module">
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
-// === КОНФИГУРАЦИЯ ===
 env.allowLocalModels = false;
 
-// База автомобилей с ключевыми словами для маппинга
+// База авто
 const DB = [
   {id:'camry',make:'Toyota',model:'Camry',kw:['toyota','camry','sedan'],price:31000},
   {id:'corolla',make:'Toyota',model:'Corolla',kw:['toyota','corolla','sedan'],price:24000},
@@ -205,7 +200,7 @@ const DB = [
   {id:'tacoma',make:'Toyota',model:'Tacoma',kw:['toyota','tacoma','pickup','truck'],price:38000}
 ];
 
-// === DOM ===
+// DOM
 const $ = s => document.querySelector(s);
 const splash = $('#splash');
 const loadBar = $('#loadBar');
@@ -239,45 +234,46 @@ async function loadModel() {
     
     classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224', {
       progress_callback: (p) => {
-        if (p.status === 'progress' && p.progress) {
+        if (p.status === 'progress' && p.progress !== undefined) {
           const pct = Math.round(p.progress);
           loadBar.style.width = pct + '%';
-          loadStatus.textContent = `${p.file}: ${pct}% (${(p.loaded/1024/1024).toFixed(1)} МБ)`;
-        } else if (p.status === 'done') {
-          loadStatus.textContent = '✓ Файл загружен: ' + p.file;
+          const mb = p.loaded ? (p.loaded/1024/1024).toFixed(1) : '?';
+          loadStatus.textContent = `Загрузка: ${pct}% (${mb} МБ)`;
         }
       }
     });
     
-    loadStatus.textContent = '✓ AI-модель готова к работе!';
+    loadStatus.textContent = '✓ AI-модель готова!';
     loadStatus.classList.add('ok');
     btnStartCam.disabled = false;
-    log('AI модель ViT загружена');
+    toast('Модель загружена!', 'good');
   } catch (e) {
-    console.error('Ошибка загрузки:', e);
+    console.error('Ошибка загрузки модели:', e);
     loadStatus.textContent = '✗ Ошибка: ' + e.message;
     loadStatus.classList.add('err');
-    // Разблокируем кнопки с fallback
-    btnStartCam.disabled = false;
+    btnStartCam.disabled = false; // всё равно даём доступ
   }
 }
 
 // === КАМЕРА ===
 async function startCamera() {
   try {
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop());
-    }
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      video: { 
+        facingMode: { ideal: facingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
     });
+    
     video.srcObject = stream;
     await video.play();
     placeholder.style.display = 'none';
     btnScan.disabled = !classifier;
     btnFlip.disabled = false;
     setStatus('Камера активна · готов к сканированию', 'ok');
-    log('Камера включена');
   } catch (e) {
     setStatus('Ошибка камеры: ' + e.message, 'err');
     toast('Нет доступа к камере', 'bad');
@@ -299,10 +295,36 @@ btnStartCam.addEventListener('click', async () => {
 btnStartDemo.addEventListener('click', () => {
   splash.classList.add('gone');
   setTimeout(() => splash.remove(), 600);
-  placeholder.textContent = '🎮 Демо-режим (без камеры)';
+  placeholder.textContent = '🖼️ Демо: наведите камеру на фото авто на другом экране';
   btnScan.disabled = !classifier;
-  setStatus('Демо-режим: можно сканировать любое изображение на экране', '');
+  setStatus('Демо-режим: можно сканировать фото на экране', '');
 });
+
+// === ЗАХВАТ КАДРА (ИСПРАВЛЕНИЕ ОШИБКИ) ===
+function captureFrame() {
+  // Создаём canvas и рисуем текущий кадр видео
+  const canvas = document.createElement('canvas');
+  
+  // Берём размеры видео (или дефолтные)
+  const w = video.videoWidth || 640;
+  const h = video.videoHeight || 480;
+  
+  canvas.width = w;
+  canvas.height = h;
+  
+  const ctx = canvas.getContext('2d');
+  
+  // Если видео активно, рисуем его
+  if (stream && video.readyState >= 2) {
+    ctx.drawImage(video, 0, 0, w, h);
+  } else {
+    // Если нет видео, рисуем чёрный фон (для демо)
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w, h);
+  }
+  
+  return canvas;
+}
 
 // === СКАНИРОВАНИЕ ===
 btnScan.addEventListener('click', async () => {
@@ -312,47 +334,33 @@ btnScan.addEventListener('click', async () => {
   }
   
   btnScan.disabled = true;
-  setStatus('🧠 AI анализирует изображение...', '');
+  setStatus('🧠 AI анализирует изображение...', 'working');
   resultPanel.classList.remove('show');
   savedEl.classList.remove('show');
   
   try {
-    // Делаем снимок с видео
-    const source = stream ? video : await captureScreen();
-    if (!source) throw new Error('Нет источника изображения');
+    // ИСПРАВЛЕНИЕ: передаём canvas вместо video
+    const canvas = captureFrame();
     
-    const predictions = await classifier(source, { topk: 5 });
+    console.log('Передаю в классификатор:', canvas);
+    
+    const predictions = await classifier(canvas, { topk: 5 });
     
     console.log('AI предсказания:', predictions);
     displayResults(predictions);
     setStatus('✓ Анализ завершён', 'ok');
+    
   } catch (e) {
     console.error('Ошибка сканирования:', e);
     setStatus('Ошибка: ' + e.message, 'err');
+    toast('Ошибка: ' + e.message, 'bad');
   } finally {
-    btnScan.disabled = !stream;
+    btnScan.disabled = !stream && !classifier;
   }
 });
 
-async function captureScreen() {
-  // Для демо-режима — пробуем сделать снимок экрана
-  try {
-    const s = await navigator.mediaDevices.getDisplayMedia({ video: true });
-    const v = document.createElement('video');
-    v.srcObject = s;
-    await v.play();
-    await new Promise(r => setTimeout(r, 500));
-    s.getTracks().forEach(t => t.stop());
-    return v;
-  } catch (e) {
-    toast('Для демо нужен доступ к экрану', 'bad');
-    return null;
-  }
-}
-
 // === ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ ===
 function displayResults(predictions) {
-  // Показываем сырые результаты
   aiRaw.innerHTML = predictions.map((p, i) => 
     `<div class="pred ${i===0?'top':''}">
       <span class="name">${p.label}</span>
@@ -360,7 +368,6 @@ function displayResults(predictions) {
     </div>`
   ).join('');
   
-  // Сопоставляем с базой
   const matches = matchWithDB(predictions);
   
   if (matches.length > 0) {
@@ -370,13 +377,12 @@ function displayResults(predictions) {
         <div class="match-badge" style="border-color:var(--a)">${m.car.make[0]}</div>
         <div class="match-info">
           <b>${m.car.make} ${m.car.model}</b>
-          <small>совпадений: ${m.matches.length} · ${m.matches.map(x => x.label).join(', ')}</small>
+          <small>${m.matches.map(x => x.label).join(', ')}</small>
         </div>
         <div class="match-score">${m.score.toFixed(0)}%</div>
       </div>`
     ).join('');
     
-    // Клики по matches
     matchesEl.querySelectorAll('.match').forEach((el, i) => {
       el.addEventListener('click', () => selectMatch(matches[i], el));
     });
@@ -386,6 +392,7 @@ function displayResults(predictions) {
       <button class="btn primary" id="btnSave" disabled>✓ Сохранить</button>
     `;
     $('#btnRescan').addEventListener('click', () => btnScan.click());
+    
   } else {
     matchedBox.style.display = 'block';
     matchesEl.innerHTML = `
@@ -393,8 +400,7 @@ function displayResults(predictions) {
         <span class="name">⚠ Автомобиль не найден в базе</span>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">
-        AI распознал: <b>${predictions[0].label}</b>, но такой марки нет в нашей базе. 
-        Это нормально — база содержит только ~40 популярных моделей.
+        AI распознал: <b>${predictions[0].label}</b>. Такой марки нет в нашей базе (~40 моделей).
       </div>
     `;
     resultActions.innerHTML = `<button class="btn" id="btnRescan">🔄 Сканировать снова</button>`;
@@ -404,12 +410,13 @@ function displayResults(predictions) {
   resultPanel.classList.add('show');
 }
 
+// === МАППИНГ С БАЗОЙ ===
 function matchWithDB(predictions) {
   const scores = {};
   
   for (const pred of predictions) {
     const label = pred.label.toLowerCase();
-    const words = label.split(/[\s,]+/);
+    const words = label.split(/[\s,\-]+/);
     
     for (const car of DB) {
       let matchCount = 0;
@@ -417,8 +424,7 @@ function matchWithDB(predictions) {
       
       for (const kw of car.kw) {
         const kwLower = kw.toLowerCase();
-        // Проверяем полное совпадение или совпадение слова
-        if (label.includes(kwLower) || words.some(w => w === kwLower || w.startsWith(kwLower))) {
+        if (label.includes(kwLower)) {
           matchCount++;
           if (!matchedLabels.find(m => m.label === pred.label)) {
             matchedLabels.push({ label: pred.label, score: pred.score });
@@ -428,14 +434,12 @@ function matchWithDB(predictions) {
       
       if (matchCount > 0) {
         if (!scores[car.id]) scores[car.id] = { car, score: 0, matches: [] };
-        // Вес: больше совпадений = выше скор
         scores[car.id].score += pred.score * matchCount;
         scores[car.id].matches.push(...matchedLabels);
       }
     }
   }
   
-  // Убираем дубликаты в matches
   Object.values(scores).forEach(s => {
     const seen = new Set();
     s.matches = s.matches.filter(m => {
@@ -445,7 +449,6 @@ function matchWithDB(predictions) {
     });
   });
   
-  // Сортируем и нормализуем скор в проценты
   const sorted = Object.values(scores).sort((a, b) => b.score - a.score);
   const maxScore = sorted[0]?.score || 1;
   sorted.forEach(s => s.score = (s.score / maxScore) * 100);
@@ -470,26 +473,22 @@ function selectMatch(match, el) {
 function saveMatch(match) {
   const car = match.car;
   const price = car.price;
-  
-  // Добавляем деньги
   const reward = 100 + Math.floor(price / 1000);
+  
   money += reward;
   localStorage.setItem('waink_money', money);
   moneyEl.textContent = '$ ' + money.toLocaleString('ru-RU');
   
-  // Показываем сохранение
   savedEl.classList.add('show');
   savedEl.innerHTML = `
     <b>✓ Сохранено: ${car.make} ${car.model}</b>
     <div style="color:var(--muted);font-size:12px;margin-top:4px">
-      Рыночная цена: $ ${price.toLocaleString('ru-RU')} · Награда: +$ ${reward}
+      Цена: $ ${price.toLocaleString('ru-RU')} · Награда: +$ ${reward}
     </div>
   `;
   
   toast(`+ $ ${reward} за ${car.model}`, 'good');
-  log(`Сканирован: ${car.make} ${car.model}`);
   
-  // Скрываем result через секунду
   setTimeout(() => {
     resultPanel.classList.remove('show');
     savedEl.classList.remove('show');
@@ -514,11 +513,7 @@ function toast(msg, type) {
   }, 2500);
 }
 
-function log(msg) {
-  console.log('[WAINK]', new Date().toLocaleTimeString(), msg);
-}
-
-// === ЗАПУСК ===
+// Запуск
 loadModel();
 </script>
 </body>
