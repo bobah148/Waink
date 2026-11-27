@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WAINK — AI Car Scanner</title>
+<title>WAINK — AI Car Scanner v4.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --a:#ff2e88;--b:#ff7a18;--c:#00e5ff;--bg:#07030f;--bg2:#0b0616;
+  --a:#ff2e88;--b:#ff7a18;--c:#00e5ff;--bg:#07030f;
   --ink:#f4eeff;--muted:#9d8fc0;--line:rgba(190,140,255,.18);
-  --good:#3ef08c;--warn:#ffb020;--bad:#ff3b5c;--info:#38bdf8;
+  --good:#3ef08c;--warn:#ffb020;--bad:#ff3b5c;
   --grad:linear-gradient(100deg,var(--a),var(--b));
   --mono:'Courier New',monospace;
 }
@@ -22,7 +22,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .s-tag{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--muted);margin-top:12px;text-transform:uppercase}
 .s-loader{width:220px;height:3px;border-radius:2px;background:rgba(190,140,255,.15);margin:26px 0 12px;overflow:hidden}
 .s-loader i{display:block;height:100%;width:0%;border-radius:2px;background:var(--grad);transition:width .3s}
-.s-status{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-align:center;min-height:32px;line-height:1.4}
+.s-status{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-align:center;min-height:32px;line-height:1.4;max-width:300px}
 .s-status.ok{color:var(--good)}
 .s-status.err{color:var(--bad)}
 .s-btns{display:flex;flex-direction:column;gap:10px;width:min(280px,80%);margin-top:20px}
@@ -107,7 +107,6 @@ body{min-height:100vh;display:flex;flex-direction:column}
   <div class="s-status" id="loadStatus">Инициализация...</div>
   <div class="s-btns">
     <button class="s-btn primary" id="btnStartCam" disabled>📷 Камера + AI</button>
-    <button class="s-btn ghost" id="btnStartDemo">🖼️ Демо (без камеры)</button>
   </div>
   <p class="s-note">AI-модель ViT загружается (~86 МБ) — один раз, потом кэшируется браузером. Работает локально через Transformers.js.</p>
 </div>
@@ -115,7 +114,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 <!-- App -->
 <div class="app" id="app">
   <div class="top">
-    <div class="logo">WAINK<small>AI SCANNER v4.1</small></div>
+    <div class="logo">WAINK<small>AI SCANNER v4.2</small></div>
     <div class="money" id="money">$ 0</div>
   </div>
 
@@ -152,7 +151,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 </div>
 
 <script type="module">
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+import { pipeline, env, RawImage } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
 env.allowLocalModels = false;
 
@@ -206,7 +205,6 @@ const splash = $('#splash');
 const loadBar = $('#loadBar');
 const loadStatus = $('#loadStatus');
 const btnStartCam = $('#btnStartCam');
-const btnStartDemo = $('#btnStartDemo');
 const video = $('#video');
 const placeholder = $('#placeholder');
 const statusBar = $('#statusBar');
@@ -251,7 +249,7 @@ async function loadModel() {
     console.error('Ошибка загрузки модели:', e);
     loadStatus.textContent = '✗ Ошибка: ' + e.message;
     loadStatus.classList.add('err');
-    btnStartCam.disabled = false; // всё равно даём доступ
+    btnStartCam.disabled = false;
   }
 }
 
@@ -292,38 +290,32 @@ btnStartCam.addEventListener('click', async () => {
   await startCamera();
 });
 
-btnStartDemo.addEventListener('click', () => {
-  splash.classList.add('gone');
-  setTimeout(() => splash.remove(), 600);
-  placeholder.textContent = '🖼️ Демо: наведите камеру на фото авто на другом экране';
-  btnScan.disabled = !classifier;
-  setStatus('Демо-режим: можно сканировать фото на экране', '');
-});
-
-// === ЗАХВАТ КАДРА (ИСПРАВЛЕНИЕ ОШИБКИ) ===
-function captureFrame() {
-  // Создаём canvas и рисуем текущий кадр видео
-  const canvas = document.createElement('canvas');
-  
-  // Берём размеры видео (или дефолтные)
-  const w = video.videoWidth || 640;
-  const h = video.videoHeight || 480;
-  
-  canvas.width = w;
-  canvas.height = h;
-  
-  const ctx = canvas.getContext('2d');
-  
-  // Если видео активно, рисуем его
-  if (stream && video.readyState >= 2) {
+// === ЗАХВАТ КАДРА ===
+async function captureFrame() {
+  return new Promise((resolve, reject) => {
+    if (!stream || video.readyState < 2) {
+      reject(new Error('Видео не готово. Подождите секунду и попробуйте снова.'));
+      return;
+    }
+    
+    const canvas = document.createElement('canvas');
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+    
+    if (!w || !h) {
+      reject(new Error('Не удалось получить размеры видео'));
+      return;
+    }
+    
+    canvas.width = w;
+    canvas.height = h;
+    
+    const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, w, h);
-  } else {
-    // Если нет видео, рисуем чёрный фон (для демо)
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, w, h);
-  }
-  
-  return canvas;
+    
+    // Возвращаем canvas для дальнейшей обработки
+    resolve(canvas);
+  });
 }
 
 // === СКАНИРОВАНИЕ ===
@@ -339,12 +331,16 @@ btnScan.addEventListener('click', async () => {
   savedEl.classList.remove('show');
   
   try {
-    // ИСПРАВЛЕНИЕ: передаём canvas вместо video
-    const canvas = captureFrame();
+    // Захватываем кадр
+    const canvas = await captureFrame();
+    console.log('Кадр захвачен:', canvas.width, 'x', canvas.height);
     
-    console.log('Передаю в классификатор:', canvas);
+    // ИСПРАВЛЕНИЕ: используем RawImage.fromCanvas
+    const rawImage = await RawImage.fromCanvas(canvas);
+    console.log('RawImage создан:', rawImage);
     
-    const predictions = await classifier(canvas, { topk: 5 });
+    // Передаём RawImage в классификатор
+    const predictions = await classifier(rawImage, { topk: 5 });
     
     console.log('AI предсказания:', predictions);
     displayResults(predictions);
