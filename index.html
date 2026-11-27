@@ -243,10 +243,10 @@ class SoundEngine {
 }
 const sfx = new SoundEngine();
 
-// ==================== ПЕРЕВОД МЕТок ====================
-const LABELS_RU = {
-  'sports car, sport car': 'Спорткар',
+  // === АВТОМОБИЛИ И ТРАНСПОРТ ===
+  'sports car, sport car': 'Спорткар / Спортивный автомобиль',
   'sport car': 'Спорткар',
+  'sports car': 'Спорткар',
   'convertible': 'Кабриолет',
   'minivan': 'Минивэн',
   'pickup, pickup truck': 'Пикап',
@@ -257,21 +257,21 @@ const LABELS_RU = {
   'garbage truck': 'Мусоровоз',
   'tow truck': 'Эвакуатор',
   'tractor': 'Трактор',
-  'trailer truck': 'Фура',
-  'moving van': 'Фургон',
+  'trailer truck': 'Фура / Грузовик с прицепом',
+  'moving van': 'Фургон для переезда',
   'police van': 'Полицейский фургон',
   'car wheel': 'Автомобиль',
   'grille': 'Автомобиль',
-  'jeep': 'Внедорожник',
+  'jeep': 'Внедорожник / Джип',
   'limousine': 'Лимузин',
   'cab': 'Такси',
-  'racer': 'Гоночный авто',
+  'racer': 'Гоночный автомобиль',
   'beach wagon': 'Универсал',
   'car mirror': 'Автомобиль',
   'bonnet': 'Автомобиль',
   'sedan': 'Седан',
   'hatchback': 'Хэтчбек',
-  'suv': 'Внедорожник',
+  'suv': 'Внедорожник / Кроссовер',
   'wagon': 'Универсал',
   'coupe': 'Купе',
   'roadster': 'Родстер',
@@ -279,21 +279,156 @@ const LABELS_RU = {
   'hypercar': 'Гиперкар',
   'muscle car': 'Маслкар',
   'electric': 'Электромобиль',
-  'luxury': 'Люкс',
+  'luxury': 'Люксовый автомобиль',
   'off-road': 'Внедорожник',
   'truck': 'Грузовик',
   'van': 'Фургон',
   'bus': 'Автобус',
+  'school bus': 'Школьный автобус',
+  'trolleybus': 'Троллейбус',
+  'passenger car': 'Легковой автомобиль',
+  'freight car': 'Грузовой вагон',
+  'gas pump': 'Заправка',
+  'car': 'Автомобиль',
+  'automobile': 'Автомобиль',
+  'vehicle': 'Транспортное средство',
+  
+  // === МОТОЦИКЛЫ И ВЕЛОСИПЕДЫ ===
+  'motorcycle': 'Мотоцикл',
+  'moped': 'Мопед',
+  'bicycle': 'Велосипед',
+  'mountain bike': 'Горный велосипед',
+  'tricycle': 'Трёхколёсный велосипед',
+  
+  // === ПОЕЗДА ===
+  'bullet train': 'Скоростной поезд',
+  'electric locomotive': 'Электровоз',
+  'steam locomotive': 'Паровоз',
+  'passenger train': 'Пассажирский поезд',
+  
+  // === ВОДНЫЙ ТРАНСПОРТ ===
+  'aircraft carrier': 'Авианосец',
+  'canoe': 'Каноэ',
+  'catamaran': 'Катамаран',
+  'container ship': 'Контейнеровоз',
+  'fireboat': 'Пожарный катер',
+  'gondola': 'Гондола',
+  'lifeboat': 'Спасательная лодка',
+  'liner': 'Лайнер',
+  'pirate': 'Пиратский корабль',
+  'schooner': 'Шхуна',
+  'speedboat': 'Катер',
+  'trimaran': 'Тримаран',
+  'warship': 'Военный корабль',
+  'yawl': 'Ял',
+  'submarine': 'Подводная лодка',
+  
+  // === ВОЗДУШНЫЙ ТРАНСПОРТ ===
+  'airship': 'Дирижабль',
+  'balloon': 'Воздушный шар',
+  'helicopter': 'Вертолёт',
+  'space shuttle': 'Космический шаттл',
+  'warplane': 'Военный самолёт',
+  
+  // === ДОРОЖНАЯ ИНФРАСТРУКТУРА ===
+  'traffic light': 'Светофор',
+  'street sign': 'Дорожный знак',
+  'streetlight': 'Фонарный столб',
+  'crosswalk': 'Пешеходный переход',
+  'bridge': 'Мост',
+  'tunnel': 'Туннель',
+  'viaduct': 'Виадук',
+  'traffic jam': 'Пробка',
+  
+  // === ЗДАНИЯ (могут попасть в кадр) ===
+  'church': 'Церковь',
+  'mosque': 'Мечеть',
+  'castle': 'Замок',
+  'palace': 'Дворец',
+  'monastery': 'Монастырь',
+  'skyscraper': 'Небоскрёб',
+  'barn': 'Амбар',
+  'boathouse': 'Лодочный дом',
+  'library': 'Библиотека',
+  'prison': 'Тюрьма',
+  'restaurant': 'Ресторан',
+  'cinema': 'Кинотеатр',
+  'warehouse': 'Склад',
+  
+  // === ПРИРОДА ===
+  'mountain': 'Гора',
+  'valley': 'Долина',
+  'forest': 'Лес',
+  'desert': 'Пустыня',
+  'lake': 'Озеро',
+  'river': 'Река',
+  'beach': 'Пляж',
+  'island': 'Остров',
+  'volcano': 'Вулкан',
+  'cliff': 'Скала',
+  
+  // === ЖИВОТНЫЕ (могут попасть в кадр) ===
+  'dog': 'Собака',
+  'cat': 'Кошка',
+  'bird': 'Птица',
+  'horse': 'Лошадь',
+  'cow': 'Корова',
+  'sheep': 'Овца',
+  'goat': 'Коза',
+  'pig': 'Свинья',
+  'chicken': 'Курица',
+  'duck': 'Утка',
+  'goose': 'Гусь',
+  'fish': 'Рыба',
+  
+  // === ЛЮДИ ===
+  'person': 'Человек',
+  'pedestrian': 'Пешеход',
+  'driver': 'Водитель',
+  'police officer': 'Полицейский',
+  
+  // === РАЗНОЕ ===
+  'mailbox': 'Почтовый ящик',
+  'parking meter': 'Паркомат',
+  'bench': 'Скамейка',
+  'fountain': 'Фонтан',
+  'statue': 'Статуя',
+  'monument': 'Памятник',
+  'flag': 'Флаг',
+  'umbrella': 'Зонт',
+  'shopping cart': 'Тележка',
+  'shopping basket': 'Корзина',
 };
 
 function translateLabel(label) {
-  const lower = label.toLowerCase();
+  const lower = label.toLowerCase().trim();
+  
+  // Точное совпадение
+  if (LABELS_RU[lower]) {
+    return LABELS_RU[lower];
+  }
+  
+  // Частичное совпадение
   for (const key in LABELS_RU) {
     if (lower.includes(key.toLowerCase())) {
       return LABELS_RU[key];
     }
   }
-  // Если не нашли, возвращаем оригинал с пояснением
+  
+  // Проверяем по словам
+  const words = lower.split(/[\s,\-]+/);
+  for (const word of words) {
+    for (const key in LABELS_RU) {
+      const keyWords = key.split(/[\s,\-]+/);
+      if (keyWords.includes(word)) {
+        return LABELS_RU[key];
+      }
+    }
+  }
+  
+  // Если не нашли — возвращаем оригинал с пометкой
+  return `${label}`;
+}
   return label;
 }
 
