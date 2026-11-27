@@ -3,268 +3,522 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WAINK · ViT AI Scanner</title>
-<!-- Используем UMD-сборку, которая работает без ES-модулей и не блокируется браузером локально -->
-<script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"></script>
+<title>WAINK — AI Car Scanner</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --a: #ff2e88; --b: #ff7a18; --c: #00e5ff;
-  --bg: #07030f; --ink: #f4eeff; --muted: #9d8fc0;
-  --line: rgba(190,140,255,0.18); --good: #3ef08c; --bad: #ff3b5c;
-  --grad: linear-gradient(100deg, var(--a), var(--b));
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --a:#ff2e88;--b:#ff7a18;--c:#00e5ff;--bg:#07030f;--bg2:#0b0616;
+  --ink:#f4eeff;--muted:#9d8fc0;--line:rgba(190,140,255,.18);
+  --good:#3ef08c;--warn:#ffb020;--bad:#ff3b5c;--info:#38bdf8;
+  --grad:linear-gradient(100deg,var(--a),var(--b));
+  --mono:'Courier New',monospace;
 }
-html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
-body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; gap: 16px; min-height: 100vh; }
-h1 { font-size: 26px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; text-align: center; margin-top: 10px; }
-.status { font-family: monospace; font-size: 12px; color: var(--c); padding: 10px 16px; background: rgba(0,229,255,0.08); border: 1px solid var(--line); border-radius: 10px; width: 100%; max-width: 480px; text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.status.err { color: var(--bad); border-color: rgba(255,59,92,0.3); background: rgba(255,59,92,0.08); }
-.status.ok { color: var(--good); border-color: rgba(62,240,140,0.3); background: rgba(62,240,140,0.08); }
-video { width: 100%; max-width: 480px; aspect-ratio: 4/3; object-fit: cover; border-radius: 16px; border: 2px solid var(--line); background: #000; }
-video.hidden { display: none; }
-.controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 480px; }
-button { font-family: inherit; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid var(--line); color: var(--ink); background: rgba(190,140,255,0.06); transition: 0.2s; flex: 1; }
-button:hover:not(:disabled) { border-color: var(--c); box-shadow: 0 0 14px -4px var(--c); }
-button:disabled { opacity: 0.4; cursor: not-allowed; }
-button.primary { background: var(--grad); color: #14061f; border: 0; }
-button.primary:hover:not(:disabled) { box-shadow: 0 10px 30px -6px var(--a); }
-.progress { width: 100%; max-width: 480px; height: 4px; background: rgba(190,140,255,0.15); border-radius: 2px; overflow: hidden; display: none; }
-.progress.show { display: block; }
-.progress i { display: block; height: 100%; background: var(--grad); width: 0%; transition: width 0.3s; }
-.result-box { width: 100%; max-width: 480px; background: rgba(22,11,44,0.78); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: none; }
-.result-box.show { display: block; }
-.result-box h3 { font-size: 11px; color: var(--c); font-family: monospace; letter-spacing: 0.2em; margin-bottom: 10px; text-transform: uppercase; }
-.pred { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(10,5,22,0.5); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
-.pred .name { flex: 1; font-weight: 600; color: var(--muted); }
-.pred .conf { font-family: monospace; color: var(--good); font-weight: 700; }
-.pred.top { background: rgba(62,240,140,0.1); border: 1px solid rgba(62,240,140,0.3); }
-.pred.top .name { color: var(--ink); }
-.match-info { margin-top: 12px; padding: 12px; border-radius: 10px; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.3); }
-.match-info b { color: var(--c); display: block; font-size: 15px; margin-bottom: 6px; }
-.match-info small { color: var(--muted); font-size: 11px; line-height: 1.4; display: block; }
-.candidates { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-.cand { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(10,5,22,0.6); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: 0.2s; }
-.cand:hover { border-color: var(--c); background: rgba(190,140,255,0.08); }
-.cand.selected { border-color: var(--good); background: rgba(62,240,140,0.08); }
-.cand-badge { width: 36px; height: 36px; border-radius: 8px; background: var(--bg); display: grid; place-items: center; font-weight: 900; font-size: 16px; color: var(--c); flex: none; border: 1px solid var(--line); }
-.cand-info { flex: 1; min-width: 0; }
-.cand-info b { display: block; font-size: 14px; color: var(--ink); }
-.cand-info small { font-family: monospace; font-size: 10px; color: var(--muted); }
-.info { font-size: 11px; color: var(--muted); max-width: 480px; text-align: center; line-height: 1.5; margin-top: auto; padding-bottom: 20px; }
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;overflow-x:hidden}
+body{min-height:100vh;display:flex;flex-direction:column}
+
+/* Splash */
+.splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#1c0a38,#0b0616 45%,#2a0d2e);padding:24px;transition:opacity .5s}
+.splash.gone{opacity:0;pointer-events:none}
+.s-logo{font-size:clamp(44px,13vw,58px);font-weight:900;line-height:1;background:linear-gradient(110deg,var(--a),var(--b) 40%,#ffd60a 55%,var(--a) 75%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 30px rgba(255,46,136,.45))}
+.s-tag{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--muted);margin-top:12px;text-transform:uppercase}
+.s-loader{width:220px;height:3px;border-radius:2px;background:rgba(190,140,255,.15);margin:26px 0 12px;overflow:hidden}
+.s-loader i{display:block;height:100%;width:0%;border-radius:2px;background:var(--grad);transition:width .3s}
+.s-status{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-align:center;min-height:32px;line-height:1.4}
+.s-status.ok{color:var(--good)}
+.s-status.err{color:var(--bad)}
+.s-btns{display:flex;flex-direction:column;gap:10px;width:min(280px,80%);margin-top:20px}
+.s-btn{padding:15px;border-radius:16px;font-weight:800;font-size:14px;border:0;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.s-btn.primary{background:var(--grad);color:#14061f;box-shadow:0 12px 36px -8px var(--a)}
+.s-btn.primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 18px 44px -8px var(--a)}
+.s-btn.ghost{border:1px solid var(--line);color:var(--ink);background:rgba(190,140,255,.06)}
+.s-btn.ghost:hover:not(:disabled){border-color:var(--c);box-shadow:0 0 18px -5px var(--c)}
+.s-btn:disabled{opacity:.4;cursor:not-allowed}
+.s-note{font-size:10px;color:var(--muted);margin-top:16px;line-height:1.5;max-width:300px;text-align:center;opacity:.8}
+
+/* App */
+.app{flex:1;display:flex;flex-direction:column;padding:16px;gap:14px;max-width:560px;width:100%;margin:0 auto}
+.top{display:flex;align-items:center;gap:10px}
+.logo{font-size:20px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.2em;margin-top:2px;font-weight:400}
+.money{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--good);text-shadow:0 0 10px rgba(62,240,140,.5)}
+
+.status-bar{font-family:var(--mono);font-size:11px;padding:10px 14px;background:rgba(0,229,255,.06);border:1px solid var(--line);border-radius:10px;color:var(--c);min-height:40px;display:flex;align-items:center;gap:8px}
+.status-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);flex:none}
+.status-bar.err .dot{background:var(--bad);box-shadow:0 0 8px var(--bad)}
+.status-bar.ok .dot{background:var(--good);box-shadow:0 0 8px var(--good)}
+
+.cam-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;border-radius:16px;border:2px solid var(--line);overflow:hidden}
+.cam-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.cam-wrap .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px}
+
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;min-width:100px;padding:12px 16px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid var(--line);color:var(--ink);background:rgba(190,140,255,.06);transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover:not(:disabled){border-color:var(--c);box-shadow:0 0 14px -4px var(--c)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.primary{background:var(--grad);color:#14061f;border:0}
+.btn.primary:hover:not(:disabled){box-shadow:0 10px 30px -6px var(--a)}
+.btn.big{flex:2}
+
+/* Result panel */
+.result{background:rgba(22,11,44,.78);border:1px solid var(--line);border-radius:16px;padding:16px;display:none;animation:slide .4s ease}
+.result.show{display:block}
+@keyframes slide{from{opacity:0;transform:translateY(10px)}}
+.result h3{font-family:var(--mono);font-size:10px;color:var(--c);letter-spacing:.25em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.result h3::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.ai-raw{margin-bottom:12px}
+.pred{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:rgba(10,5,22,.6);border-radius:8px;margin-bottom:4px;font-size:12px;border:1px solid transparent;transition:.2s}
+.pred.top{background:rgba(62,240,140,.08);border-color:rgba(62,240,140,.3)}
+.pred .name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pred .conf{font-family:var(--mono);color:var(--good);font-weight:700;flex:none;margin-left:8px}
+
+.matched{margin-top:12px;padding:12px;border-radius:10px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.25)}
+.matched-title{font-family:var(--mono);font-size:9px;color:var(--info);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.match{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(10,5,22,.5);border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;transition:.2s}
+.match:hover{border-color:var(--c);transform:translateX(3px)}
+.match.selected{border-color:var(--good);background:rgba(62,240,140,.08)}
+.match-badge{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-weight:900;font-size:16px;color:var(--ink);background:var(--bg);border:2px solid var(--a);flex:none}
+.match-info{flex:1;min-width:0}
+.match-info b{display:block;font-size:13px}
+.match-info small{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.05em}
+.match-score{font-family:var(--mono);font-size:11px;color:var(--good);font-weight:700}
+
+.actions{display:flex;gap:8px;margin-top:14px}
+
+/* Saved */
+.saved{background:rgba(62,240,140,.08);border:1px solid rgba(62,240,140,.3);border-radius:12px;padding:14px;display:none;text-align:center;font-size:13px;color:var(--good)}
+.saved.show{display:block}
+.saved b{font-size:16px;display:block;margin-bottom:4px}
+
+/* Info */
+.info-box{font-size:10px;color:var(--muted);padding:10px;border:1px solid var(--line);border-radius:10px;line-height:1.5}
+.info-box b{color:var(--c)}
+
+/* Toasts */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:12px;background:rgba(30,15,58,.96);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;z-index:9999;backdrop-filter:blur(10px);box-shadow:0 10px 30px -10px rgba(0,0,0,.8);animation:tin .3s ease}
+.toast.good{border-color:var(--good);box-shadow:0 0 20px -5px var(--good)}
+.toast.bad{border-color:var(--bad)}
+@keyframes tin{from{opacity:0;transform:translate(-50%,-10px)}}
 </style>
 </head>
 <body>
 
-<h1>WAINK · ViT AI Scanner</h1>
-<div class="status" id="status">Инициализация библиотеки...</div>
-<div class="progress" id="progress"><i id="progressBar"></i></div>
-<video id="video" playsinline muted autoplay class="hidden"></video>
-<div class="controls">
-  <button id="btnCam" class="primary" disabled>📷 Камера</button>
-  <button id="btnScan" disabled>🔍 Сканировать</button>
-</div>
-<div class="result-box" id="resultBox">
-  <h3>🧠 Что видит нейросеть (ViT)</h3>
-  <div id="predictions"></div>
-  <div class="match-info" id="matchInfo" style="display:none"></div>
-  <div class="candidates" id="candidates"></div>
-</div>
-<div class="info">
-  Используется модель <b>Vision Transformer (ViT)</b>.<br>
-  ⚠️ Важно: ViT определяет <b>общий класс</b> (например, "sports car" или "minivan"), а не конкретную модель. На основе этого мы фильтруем базу, а вы выбираете точный автомобиль. Первая загрузка модели ~90 МБ.
+<!-- Splash screen -->
+<div class="splash" id="splash">
+  <div class="s-logo">WAINK</div>
+  <div class="s-tag">AI · CAR · INTELLIGENCE</div>
+  <div class="s-loader"><i id="loadBar"></i></div>
+  <div class="s-status" id="loadStatus">Инициализация...</div>
+  <div class="s-btns">
+    <button class="s-btn primary" id="btnStartCam" disabled>📷 Камера + AI</button>
+    <button class="s-btn ghost" id="btnStartDemo">🎮 Демо-режим</button>
+  </div>
+  <p class="s-note">AI-модель ViT загружается (~86 МБ) — один раз, потом кэшируется браузером. Работает локально через Transformers.js.</p>
 </div>
 
-<script>
-// Деструктуризация из глобального объекта window.transformers (UMD сборка)
-const { pipeline, env } = window.transformers;
-env.allowLocalModels = false; // Всегда качать из сети, чтобы избежать ошибок локального кэша
+<!-- Main app -->
+<div class="app" id="app">
+  <div class="top">
+    <div class="logo">WAINK<small>AI SCANNER v4.0</small></div>
+    <div class="money" id="money">$ 0</div>
+  </div>
 
-const statusEl = document.getElementById('status');
-const progressEl = document.getElementById('progress');
-const progressBar = document.getElementById('progressBar');
-const video = document.getElementById('video');
-const btnCam = document.getElementById('btnCam');
-const btnScan = document.getElementById('btnScan');
-const resultBox = document.getElementById('resultBox');
-const predictionsEl = document.getElementById('predictions');
-const matchInfo = document.getElementById('matchInfo');
-const candidatesEl = document.getElementById('candidates');
+  <div class="status-bar" id="statusBar">
+    <span class="dot"></span>
+    <span id="statusText">Готов к работе</span>
+  </div>
 
-// База данных с привязкой к ТИПАМ, которые понимает ViT
+  <div class="cam-wrap">
+    <video id="video" playsinline muted autoplay></video>
+    <div class="placeholder" id="placeholder">Камера не активна</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn big primary" id="btnScan" disabled>🧠 Сканировать</button>
+    <button class="btn" id="btnFlip" disabled>🔄</button>
+  </div>
+
+  <div class="result" id="resultPanel">
+    <h3>🔬 Сырые результаты AI</h3>
+    <div class="ai-raw" id="aiRaw"></div>
+    <div class="matched" id="matchedBox" style="display:none">
+      <div class="matched-title">🎯 Сопоставлено с базой (выберите)</div>
+      <div id="matches"></div>
+    </div>
+    <div class="actions" id="resultActions"></div>
+  </div>
+
+  <div class="saved" id="saved"></div>
+
+  <div class="info-box">
+    <b>Как это работает:</b> модель ViT (Vision Transformer) от Hugging Face анализирует кадр с камеры и возвращает топ-5 классов из ImageNet. Система сопоставляет их с базой автомобилей по ключевым словам. Если AI ошибся — выберите правильный вариант вручную.
+  </div>
+</div>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+// === КОНФИГУРАЦИЯ ===
+env.allowLocalModels = false;
+
+// База автомобилей с ключевыми словами для маппинга
 const DB = [
-  {id:'m4', make:'BMW', model:'M4', type:'sport'},
-  {id:'911', make:'Porsche', model:'911 Carrera', type:'sport'},
-  {id:'gtr', make:'Nissan', model:'GT-R', type:'sport'},
-  {id:'corvette', make:'Chevrolet', model:'Corvette C8', type:'super'},
-  {id:'huracan', make:'Lamborghini', model:'Huracán', type:'super'},
-  {id:'mustang', make:'Ford', model:'Mustang GT', type:'muscle'},
-  {id:'challenger', make:'Dodge', model:'Challenger R/T', type:'muscle'},
-  {id:'lc300', make:'Toyota', model:'Land Cruiser 300', type:'suv'},
-  {id:'rangerover', make:'Land Rover', model:'Range Rover', type:'suv'},
-  {id:'modely', make:'Tesla', model:'Model Y', type:'suv'},
-  {id:'f150', make:'Ford', model:'F-150', type:'truck'},
-  {id:'camry', make:'Toyota', model:'Camry', type:'sedan'},
-  {id:'eclas', make:'Mercedes-Benz', model:'E-Class', type:'luxury'},
-  {id:'model3', make:'Tesla', model:'Model 3', type:'sedan'},
-  {id:'solaris', make:'Hyundai', model:'Solaris', type:'sedan'},
-  {id:'golf', make:'Volkswagen', model:'Golf GTI', type:'hatch'}
+  {id:'camry',make:'Toyota',model:'Camry',kw:['toyota','camry','sedan'],price:31000},
+  {id:'corolla',make:'Toyota',model:'Corolla',kw:['toyota','corolla','sedan'],price:24000},
+  {id:'civic',make:'Honda',model:'Civic',kw:['honda','civic','sedan'],price:26000},
+  {id:'accord',make:'Honda',model:'Accord',kw:['honda','accord','sedan'],price:29000},
+  {id:'m3',make:'BMW',model:'M3 / M4',kw:['bmw','m3','m4','sports car'],price:75000},
+  {id:'m5',make:'BMW',model:'M5',kw:['bmw','m5','sedan'],price:110000},
+  {id:'eclass',make:'Mercedes-Benz',model:'E-Class',kw:['mercedes','e-class','e class'],price:58000},
+  {id:'sclass',make:'Mercedes-Benz',model:'S-Class',kw:['mercedes','s-class','s class','limousine'],price:115000},
+  {id:'911',make:'Porsche',model:'911 Carrera',kw:['porsche','911','carrera','sports car'],price:115000},
+  {id:'cayenne',make:'Porsche',model:'Cayenne',kw:['porsche','cayenne','suv'],price:85000},
+  {id:'mustang',make:'Ford',model:'Mustang',kw:['ford','mustang','sports car','convertible'],price:42000},
+  {id:'f150',make:'Ford',model:'F-150',kw:['ford','f-150','f150','pickup','truck'],price:55000},
+  {id:'gtr',make:'Nissan',model:'GT-R',kw:['nissan','gt-r','gtr','sports car'],price:92000},
+  {id:'corvette',make:'Chevrolet',model:'Corvette',kw:['chevrolet','corvette','sports car','convertible'],price:75000},
+  {id:'rs6',make:'Audi',model:'RS6 Avant',kw:['audi','rs6','wagon','estate'],price:120000},
+  {id:'r8',make:'Audi',model:'R8',kw:['audi','r8','sports car','supercar'],price:160000},
+  {id:'huracan',make:'Lamborghini',model:'Huracán',kw:['lamborghini','huracan','supercar','sports car'],price:245000},
+  {id:'aventador',make:'Lamborghini',model:'Aventador',kw:['lamborghini','aventador','supercar'],price:420000},
+  {id:'ferrari488',make:'Ferrari',model:'488 / F8',kw:['ferrari','488','f8','sports car','supercar'],price:280000},
+  {id:'ferraricalifornia',make:'Ferrari',model:'California / Portofino',kw:['ferrari','california','portofino','convertible'],price:220000},
+  {id:'model3',make:'Tesla',model:'Model 3',kw:['tesla','model 3','sedan','electric'],price:42000},
+  {id:'modely',make:'Tesla',model:'Model Y',kw:['tesla','model y','suv','electric'],price:52000},
+  {id:'models',make:'Tesla',model:'Model S',kw:['tesla','model s','sedan','electric'],price:85000},
+  {id:'lc300',make:'Toyota',model:'Land Cruiser 300',kw:['toyota','land cruiser','cruiser','suv'],price:95000},
+  {id:'golf',make:'Volkswagen',model:'Golf',kw:['volkswagen','vw','golf','hatchback'],price:32000},
+  {id:'wrx',make:'Subaru',model:'WRX',kw:['subaru','wrx','sedan','sports car'],price:32000},
+  {id:'challenger',make:'Dodge',model:'Challenger',kw:['dodge','challenger','muscle car','sports car'],price:45000},
+  {id:'charger',make:'Dodge',model:'Charger',kw:['dodge','charger','sedan','muscle car'],price:42000},
+  {id:'rr',make:'Land Rover',model:'Range Rover',kw:['land rover','range rover','rover','suv'],price:115000},
+  {id:'x5',make:'BMW',model:'X5',kw:['bmw','x5','suv'],price:72000},
+  {id:'gclass',make:'Mercedes-Benz',model:'G-Class',kw:['mercedes','g-class','g class','suv'],price:160000},
+  {id:'solaris',make:'Hyundai',model:'Solaris',kw:['hyundai','solaris','accent','sedan'],price:16000},
+  {id:'k5',make:'Kia',model:'K5',kw:['kia','k5','optima','sedan'],price:28000},
+  {id:'mazda3',make:'Mazda',model:'Mazda3',kw:['mazda','mazda3','hatchback','sedan'],price:26000},
+  {id:'miata',make:'Mazda',model:'MX-5 Miata',kw:['mazda','mx-5','miata','roadster','convertible'],price:30000},
+  {id:'mini',make:'MINI',model:'Cooper',kw:['mini','cooper','hatchback'],price:32000},
+  {id:'beetle',make:'Volkswagen',model:'Beetle',kw:['volkswagen','vw','beetle','hatchback'],price:22000},
+  {id:'jeep',make:'Jeep',model:'Wrangler',kw:['jeep','wrangler','suv','off-road'],price:48000},
+  {id:'camaro',make:'Chevrolet',model:'Camaro',kw:['chevrolet','camaro','sports car','muscle car'],price:42000},
+  {id:'tacoma',make:'Toyota',model:'Tacoma',kw:['toyota','tacoma','pickup','truck'],price:38000}
 ];
 
-// МАППИНГ: Переводим ответы ViT (ImageNet классы) в наши типы автомобилей
-const VIT_TO_TYPE = {
-  'sports car': ['sport', 'super', 'muscle'],
-  'racer': ['sport', 'super'],
-  'minivan': ['suv', 'luxury', 'sedan'],
-  'beach wagon': ['suv', 'hatch'],
-  'suv': ['suv'],
-  'pickup': ['truck'],
-  'tow truck': ['truck'],
-  'limousine': ['luxury', 'sedan'],
-  'car': ['sedan', 'luxury', 'hatch', 'sport'] // fallback
-};
+// === DOM ===
+const $ = s => document.querySelector(s);
+const splash = $('#splash');
+const loadBar = $('#loadBar');
+const loadStatus = $('#loadStatus');
+const btnStartCam = $('#btnStartCam');
+const btnStartDemo = $('#btnStartDemo');
+const video = $('#video');
+const placeholder = $('#placeholder');
+const statusBar = $('#statusBar');
+const statusText = $('#statusText');
+const btnScan = $('#btnScan');
+const btnFlip = $('#btnFlip');
+const resultPanel = $('#resultPanel');
+const aiRaw = $('#aiRaw');
+const matchedBox = $('#matchedBox');
+const matchesEl = $('#matches');
+const resultActions = $('#resultActions');
+const savedEl = $('#saved');
+const moneyEl = $('#money');
 
 let classifier = null;
 let stream = null;
+let facingMode = 'environment';
+let money = parseInt(localStorage.getItem('waink_money') || '0');
+moneyEl.textContent = '$ ' + money.toLocaleString('ru-RU');
 
-// 1. Загрузка модели
+// === ЗАГРУЗКА МОДЕЛИ ===
 async function loadModel() {
   try {
-    statusEl.textContent = 'Загрузка модели ViT (~90 МБ). Не закрывайте вкладку...';
-    progressEl.classList.add('show');
+    loadStatus.textContent = 'Загрузка модели ViT (~86 МБ)...';
     
     classifier = await pipeline('image-classification', 'Xenova/vit-base-patch16-224', {
-      progress_callback: (progress) => {
-        if (progress.progress) {
-          progressBar.style.width = progress.progress.toFixed(0) + '%';
-          statusEl.textContent = `Загрузка: ${progress.progress.toFixed(0)}% (${(progress.loaded/1024/1024).toFixed(1)} МБ)`;
+      progress_callback: (p) => {
+        if (p.status === 'progress' && p.progress) {
+          const pct = Math.round(p.progress);
+          loadBar.style.width = pct + '%';
+          loadStatus.textContent = `${p.file}: ${pct}% (${(p.loaded/1024/1024).toFixed(1)} МБ)`;
+        } else if (p.status === 'done') {
+          loadStatus.textContent = '✓ Файл загружен: ' + p.file;
         }
       }
     });
     
-    statusEl.textContent = '✓ Модель ViT готова! Включите камеру.';
-    statusEl.className = 'status ok';
-    progressEl.classList.remove('show');
-    btnCam.disabled = false;
+    loadStatus.textContent = '✓ AI-модель готова к работе!';
+    loadStatus.classList.add('ok');
+    btnStartCam.disabled = false;
+    log('AI модель ViT загружена');
   } catch (e) {
-    statusEl.textContent = '✗ Ошибка загрузки: ' + e.message + '. Попробуйте открыть через Live Server.';
-    statusEl.className = 'status err';
-    console.error(e);
+    console.error('Ошибка загрузки:', e);
+    loadStatus.textContent = '✗ Ошибка: ' + e.message;
+    loadStatus.classList.add('err');
+    // Разблокируем кнопки с fallback
+    btnStartCam.disabled = false;
   }
 }
 
-// 2. Включение камеры
-btnCam.addEventListener('click', async () => {
+// === КАМЕРА ===
+async function startCamera() {
   try {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+    }
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      video: { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }
     });
     video.srcObject = stream;
     await video.play();
-    video.classList.remove('hidden');
-    btnScan.disabled = false;
-    btnCam.disabled = true;
-    statusEl.textContent = '📷 Камера активна. Наведите на авто и нажмите "Сканировать".';
+    placeholder.style.display = 'none';
+    btnScan.disabled = !classifier;
+    btnFlip.disabled = false;
+    setStatus('Камера активна · готов к сканированию', 'ok');
+    log('Камера включена');
   } catch (e) {
-    statusEl.textContent = '✗ Ошибка камеры: ' + (e.message || 'Доступ запрещён. Нужен HTTPS или localhost.');
-    statusEl.className = 'status err';
+    setStatus('Ошибка камеры: ' + e.message, 'err');
+    toast('Нет доступа к камере', 'bad');
+  }
+}
+
+btnFlip.addEventListener('click', () => {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  startCamera();
+});
+
+// === СТАРТ ===
+btnStartCam.addEventListener('click', async () => {
+  splash.classList.add('gone');
+  setTimeout(() => splash.remove(), 600);
+  await startCamera();
+});
+
+btnStartDemo.addEventListener('click', () => {
+  splash.classList.add('gone');
+  setTimeout(() => splash.remove(), 600);
+  placeholder.textContent = '🎮 Демо-режим (без камеры)';
+  btnScan.disabled = !classifier;
+  setStatus('Демо-режим: можно сканировать любое изображение на экране', '');
+});
+
+// === СКАНИРОВАНИЕ ===
+btnScan.addEventListener('click', async () => {
+  if (!classifier) {
+    toast('AI-модель не загружена', 'bad');
+    return;
+  }
+  
+  btnScan.disabled = true;
+  setStatus('🧠 AI анализирует изображение...', '');
+  resultPanel.classList.remove('show');
+  savedEl.classList.remove('show');
+  
+  try {
+    // Делаем снимок с видео
+    const source = stream ? video : await captureScreen();
+    if (!source) throw new Error('Нет источника изображения');
+    
+    const predictions = await classifier(source, { topk: 5 });
+    
+    console.log('AI предсказания:', predictions);
+    displayResults(predictions);
+    setStatus('✓ Анализ завершён', 'ok');
+  } catch (e) {
+    console.error('Ошибка сканирования:', e);
+    setStatus('Ошибка: ' + e.message, 'err');
+  } finally {
+    btnScan.disabled = !stream;
   }
 });
 
-// 3. Логика сопоставления
-function processPredictions(predictions) {
-  let bestMatchType = null;
-  let topLabel = predictions[0].label.toLowerCase();
-  let topConf = predictions[0].score;
-
-  // Ищем совпадение в нашем маппинге
-  for (const [vitClass, ourTypes] of Object.entries(VIT_TO_TYPE)) {
-    if (topLabel.includes(vitClass)) {
-      bestMatchType = ourTypes;
-      break;
-    }
+async function captureScreen() {
+  // Для демо-режима — пробуем сделать снимок экрана
+  try {
+    const s = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    const v = document.createElement('video');
+    v.srcObject = s;
+    await v.play();
+    await new Promise(r => setTimeout(r, 500));
+    s.getTracks().forEach(t => t.stop());
+    return v;
+  } catch (e) {
+    toast('Для демо нужен доступ к экрану', 'bad');
+    return null;
   }
-
-  // Если не нашли специфичный класс, используем общий 'car'
-  if (!bestMatchType) {
-    bestMatchType = VIT_TO_TYPE['car'];
-  }
-
-  // Фильтруем базу данных по найденным типам
-  const candidates = DB.filter(car => bestMatchType.includes(car.type));
-  
-  return { topLabel, topConf, bestMatchType, candidates };
 }
 
-// 4. Сканирование
-btnScan.addEventListener('click', async () => {
-  if (!classifier) return;
+// === ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ ===
+function displayResults(predictions) {
+  // Показываем сырые результаты
+  aiRaw.innerHTML = predictions.map((p, i) => 
+    `<div class="pred ${i===0?'top':''}">
+      <span class="name">${p.label}</span>
+      <span class="conf">${(p.score*100).toFixed(1)}%</span>
+    </div>`
+  ).join('');
   
-  btnScan.disabled = true;
-  statusEl.textContent = '🧠 ViT анализирует изображение...';
-  statusEl.className = 'status';
-  resultBox.classList.remove('show');
+  // Сопоставляем с базой
+  const matches = matchWithDB(predictions);
   
-  try {
-    // Даём видео обновиться
-    await new Promise(r => setTimeout(r, 200));
-    
-    const predictions = await classifier(video, { topk: 5 });
-    console.log('ViT Raw Output:', predictions);
-    
-    const result = processPredictions(predictions);
-    
-    // Показываем сырые данные
-    predictionsEl.innerHTML = predictions.map((p, i) => 
-      `<div class="pred ${i===0?'top':''}">
-        <span class="name">${p.label}</span>
-        <span class="conf">${(p.score*100).toFixed(1)}%</span>
+  if (matches.length > 0) {
+    matchedBox.style.display = 'block';
+    matchesEl.innerHTML = matches.slice(0, 5).map((m, i) => 
+      `<div class="match" data-idx="${i}">
+        <div class="match-badge" style="border-color:var(--a)">${m.car.make[0]}</div>
+        <div class="match-info">
+          <b>${m.car.make} ${m.car.model}</b>
+          <small>совпадений: ${m.matches.length} · ${m.matches.map(x => x.label).join(', ')}</small>
+        </div>
+        <div class="match-score">${m.score.toFixed(0)}%</div>
       </div>`
     ).join('');
     
-    // Показываем интерпретацию
-    matchInfo.style.display = 'block';
-    matchInfo.innerHTML = `
-      <b>🎯 AI определил класс: "${result.topLabel}"</b>
-      <small>Это соответствует типам: ${result.bestMatchType.join(', ')}.<br>
-      Выберите точную модель из подходящих вариантов ниже:</small>
+    // Клики по matches
+    matchesEl.querySelectorAll('.match').forEach((el, i) => {
+      el.addEventListener('click', () => selectMatch(matches[i], el));
+    });
+    
+    resultActions.innerHTML = `
+      <button class="btn" id="btnRescan">🔄 Ещё раз</button>
+      <button class="btn primary" id="btnSave" disabled>✓ Сохранить</button>
     `;
-    
-    // Генерируем список для выбора
-    candidatesEl.innerHTML = '';
-    if (result.candidates.length > 0) {
-      result.candidates.forEach(car => {
-        const div = document.createElement('div');
-        div.className = 'cand';
-        div.innerHTML = `
-          <div class="cand-badge">${car.make[0]}</div>
-          <div class="cand-info"><b>${car.make} ${car.model}</b><small>Тип: ${car.type}</small></div>
-        `;
-        div.addEventListener('click', () => {
-          document.querySelectorAll('.cand').forEach(el => el.classList.remove('selected'));
-          div.classList.add('selected');
-          statusEl.textContent = `✓ Выбрано: ${car.make} ${car.model}`;
-          statusEl.className = 'status ok';
-        });
-        candidatesEl.appendChild(div);
-      });
-    } else {
-      candidatesEl.innerHTML = '<div class="pred"><span class="name">Подходящих авто не найдено</span></div>';
-    }
-    
-    resultBox.classList.add('show');
-    statusEl.textContent = '✓ Анализ завершён. Выберите модель.';
-    statusEl.className = 'status ok';
-    
-  } catch (e) {
-    statusEl.textContent = '✗ Ошибка анализа: ' + e.message;
-    statusEl.className = 'status err';
-    console.error(e);
-  } finally {
-    btnScan.disabled = false;
+    $('#btnRescan').addEventListener('click', () => btnScan.click());
+  } else {
+    matchedBox.style.display = 'block';
+    matchesEl.innerHTML = `
+      <div class="pred" style="color:var(--warn)">
+        <span class="name">⚠ Автомобиль не найден в базе</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">
+        AI распознал: <b>${predictions[0].label}</b>, но такой марки нет в нашей базе. 
+        Это нормально — база содержит только ~40 популярных моделей.
+      </div>
+    `;
+    resultActions.innerHTML = `<button class="btn" id="btnRescan">🔄 Сканировать снова</button>`;
+    $('#btnRescan').addEventListener('click', () => btnScan.click());
   }
-});
+  
+  resultPanel.classList.add('show');
+}
 
-// Запуск при загрузке страницы
+function matchWithDB(predictions) {
+  const scores = {};
+  
+  for (const pred of predictions) {
+    const label = pred.label.toLowerCase();
+    const words = label.split(/[\s,]+/);
+    
+    for (const car of DB) {
+      let matchCount = 0;
+      const matchedLabels = [];
+      
+      for (const kw of car.kw) {
+        const kwLower = kw.toLowerCase();
+        // Проверяем полное совпадение или совпадение слова
+        if (label.includes(kwLower) || words.some(w => w === kwLower || w.startsWith(kwLower))) {
+          matchCount++;
+          if (!matchedLabels.find(m => m.label === pred.label)) {
+            matchedLabels.push({ label: pred.label, score: pred.score });
+          }
+        }
+      }
+      
+      if (matchCount > 0) {
+        if (!scores[car.id]) scores[car.id] = { car, score: 0, matches: [] };
+        // Вес: больше совпадений = выше скор
+        scores[car.id].score += pred.score * matchCount;
+        scores[car.id].matches.push(...matchedLabels);
+      }
+    }
+  }
+  
+  // Убираем дубликаты в matches
+  Object.values(scores).forEach(s => {
+    const seen = new Set();
+    s.matches = s.matches.filter(m => {
+      if (seen.has(m.label)) return false;
+      seen.add(m.label);
+      return true;
+    });
+  });
+  
+  // Сортируем и нормализуем скор в проценты
+  const sorted = Object.values(scores).sort((a, b) => b.score - a.score);
+  const maxScore = sorted[0]?.score || 1;
+  sorted.forEach(s => s.score = (s.score / maxScore) * 100);
+  
+  return sorted;
+}
+
+let selectedMatch = null;
+
+function selectMatch(match, el) {
+  document.querySelectorAll('.match').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMatch = match;
+  
+  const saveBtn = $('#btnSave');
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.onclick = () => saveMatch(match);
+  }
+}
+
+function saveMatch(match) {
+  const car = match.car;
+  const price = car.price;
+  
+  // Добавляем деньги
+  const reward = 100 + Math.floor(price / 1000);
+  money += reward;
+  localStorage.setItem('waink_money', money);
+  moneyEl.textContent = '$ ' + money.toLocaleString('ru-RU');
+  
+  // Показываем сохранение
+  savedEl.classList.add('show');
+  savedEl.innerHTML = `
+    <b>✓ Сохранено: ${car.make} ${car.model}</b>
+    <div style="color:var(--muted);font-size:12px;margin-top:4px">
+      Рыночная цена: $ ${price.toLocaleString('ru-RU')} · Награда: +$ ${reward}
+    </div>
+  `;
+  
+  toast(`+ $ ${reward} за ${car.model}`, 'good');
+  log(`Сканирован: ${car.make} ${car.model}`);
+  
+  // Скрываем result через секунду
+  setTimeout(() => {
+    resultPanel.classList.remove('show');
+    savedEl.classList.remove('show');
+    selectedMatch = null;
+  }, 3000);
+}
+
+// === УТИЛИТЫ ===
+function setStatus(text, type) {
+  statusText.textContent = text;
+  statusBar.className = 'status-bar' + (type ? ' ' + type : '');
+}
+
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type || '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
+}
+
+function log(msg) {
+  console.log('[WAINK]', new Date().toLocaleTimeString(), msg);
+}
+
+// === ЗАПУСК ===
 loadModel();
 </script>
 </body>
