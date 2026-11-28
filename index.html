@@ -864,40 +864,31 @@ async function multiScan(){
   return averaged;
 }
 
-// ==================== NHTSA API (бесплатно) ====================
-async function fetchNHTSA(make){
-  try{
-    const url=`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${encodeURIComponent(make)}?format=json`;
-    const res=await fetch(url);
-    if(!res.ok)return null;
-    const data=await res.json();
-    if(data.Results&&data.Results.length>0){
-      return{
-        make:make,
-        models:data.Results.slice(0,10).map(m=>m.Model_Name),
-        count:data.Results.length,
-        source:'NHTSA (США)'
+// ==================== NHTSA API (с таймаутом) ====================
+async function fetchNHTSA(make) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5 секунд таймаут
+    
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${encodeURIComponent(make)}?format=json`;
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.Results && data.Results.length > 0) {
+      return {
+        make: make,
+        models: data.Results.slice(0, 10).map(m => m.Model_Name),
+        count: data.Results.length,
+        source: 'NHTSA (США)'
       };
     }
     return null;
-  }catch(e){
-    console.warn('NHTSA API недоступен:',e);
-    return null;
+  } catch (e) {
+    console.warn('NHTSA API недоступен или таймаут:', e.message);
+    return null; // Возвращаем null вместо ошибки
   }
-}
-
-function displayNHTSA(nhtsaData){
-  if(!nhtsaData){
-    nhtsaInfo.classList.remove('show');
-    return;
-  }
-  nhtsaGrid.innerHTML=`
-    <div class="nhtsa-item"><span>Марка</span><b>${nhtsaData.make}</b></div>
-    <div class="nhtsa-item"><span>Моделей в базе</span><b>${nhtsaData.count}</b></div>
-    <div class="nhtsa-item" style="grid-column:span 2"><span>Примеры моделей</span><b style="font-size:10px">${nhtsaData.models.slice(0,5).join(', ')}</b></div>
-    <div class="nhtsa-item" style="grid-column:span 2"><span>Источник</span><b style="font-size:10px">${nhtsaData.source}</b></div>
-  `;
-  nhtsaInfo.classList.add('show');
 }
 
 // ==================== СКАНИРОВАНИЕ ====================
