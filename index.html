@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WAINK V — AI Car Scanner Pro</title>
+<title>WAINK V — AI Car Scanner Ultimate</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
@@ -105,13 +105,13 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 .match-info small{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.05em;display:block}
 .match-score{font-family:var(--mono);font-size:12px;color:var(--good);font-weight:700}
 
-.nhtsa-info{margin-top:12px;padding:12px;border-radius:12px;background:rgba(255,214,10,.05);border:1px solid rgba(255,214,10,.25);display:none}
-.nhtsa-info.show{display:block}
-.nhtsa-title{font-family:var(--mono);font-size:9px;color:var(--yellow);letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px}
-.nhtsa-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.nhtsa-item{padding:8px;background:rgba(10,5,22,.5);border-radius:8px;border:1px solid var(--line)}
-.nhtsa-item span{display:block;font-size:9px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em}
-.nhtsa-item b{display:block;font-size:12px;margin-top:2px}
+.extended-info{margin-top:12px;padding:12px;border-radius:12px;background:rgba(139,61,255,.05);border:1px solid rgba(139,61,255,.25);display:none}
+.extended-info.show{display:block}
+.extended-title{font-family:var(--mono);font-size:9px;color:var(--purple);letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px}
+.extended-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.extended-item{padding:8px;background:rgba(10,5,22,.5);border-radius:8px;border:1px solid var(--line)}
+.extended-item span{display:block;font-size:9px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.extended-item b{display:block;font-size:12px;margin-top:2px}
 
 .actions{display:flex;gap:8px;margin-top:16px}
 
@@ -121,6 +121,12 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 
 .info-box{font-size:10px;color:var(--muted);padding:12px;border:1px solid var(--line);border-radius:12px;line-height:1.6;font-family:var(--mono);background:rgba(10,5,22,.3)}
 .info-box b{color:var(--cyan)}
+
+.history{margin-top:12px;padding:12px;border-radius:12px;background:rgba(255,122,24,.05);border:1px solid rgba(255,122,24,.25);display:none}
+.history.show{display:block}
+.history-title{font-family:var(--mono);font-size:9px;color:var(--orange);letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px}
+.history-item{display:flex;justify-content:space-between;padding:6px 8px;background:rgba(10,5,22,.5);border-radius:6px;margin-bottom:4px;font-size:11px}
+.history-item .time{color:var(--muted);font-family:var(--mono)}
 
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:12px;background:rgba(30,15,58,.96);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;z-index:9999;backdrop-filter:blur(12px);box-shadow:0 10px 30px -10px rgba(0,0,0,.8);animation:tin .3s cubic-bezier(.2,.9,.3,1.2);max-width:90%;text-align:center;font-family:var(--disp)}
 .toast.good{border-color:var(--good);box-shadow:0 0 24px -5px var(--good)}
@@ -142,12 +148,12 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
   <div class="s-btns">
     <button class="s-btn primary" id="btnStartCam" disabled>📷 АКТИВИРОВАТЬ КАМЕРУ</button>
   </div>
-  <p class="s-note">Нейросеть + база 300 авто. Множественный анализ 3 кадров для точности.</p>
+  <p class="s-note">Нейросеть + 5 баз данных. Множественный анализ 3 кадров.</p>
 </div>
 
 <div class="app" id="app">
   <div class="top">
-    <div class="logo">WAINK V<small>AI CAR SCANNER PRO</small></div>
+    <div class="logo">WAINK V<small>AI CAR SCANNER ULTIMATE</small></div>
     <div class="money" id="money">$ 0</div>
   </div>
 
@@ -169,6 +175,7 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
     <button class="btn big primary" id="btnScan" disabled>🧠 СКАНИРОВАТЬ</button>
     <button class="btn" id="btnFlip" disabled>🔄</button>
     <button class="btn" id="btnSound">🔊</button>
+    <button class="btn" id="btnHistory">📜</button>
   </div>
   <div class="scan-counter" id="scanCounter">Сканирований: 0</div>
 
@@ -179,17 +186,22 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
       <div class="matched-title">🎯 Совпадения с базой</div>
       <div id="matches"></div>
     </div>
-    <div class="nhtsa-info" id="nhtsaInfo">
-      <div class="nhtsa-title">📋 Данные из базы NHTSA (США)</div>
-      <div class="nhtsa-grid" id="nhtsaGrid"></div>
+    <div class="extended-info" id="extendedInfo">
+      <div class="extended-title">📊 Расширенные данные</div>
+      <div class="extended-grid" id="extendedGrid"></div>
     </div>
     <div class="actions" id="resultActions"></div>
+  </div>
+
+  <div class="history" id="historyPanel">
+    <div class="history-title">📜 История сканирований</div>
+    <div id="historyList"></div>
   </div>
 
   <div class="saved" id="saved"></div>
 
   <div class="info-box">
-    <b>Источники данных:</b> нейросеть ViT (3 кадра + усреднение), локальная база 300 авто. Выберите правильный вариант вручную.
+    <b>Источники данных:</b> нейросеть ViT (3 кадра), локальная база 300 авто, база типов кузова, база стран производства, база синонимов, бесплатный API Wikidata. Выберите правильный вариант вручную.
   </div>
 </div>
 
@@ -212,7 +224,7 @@ class SoundEngine {
 }
 const sfx=new SoundEngine();
 
-// ==================== ПЕРЕВОД МЕТОК ====================
+// ==================== БАЗА 1: ПЕРЕВОД МЕТОК ====================
 const LABELS_RU={
   'sports car, sport car':'Спорткар / Спортивный автомобиль',
   'sport car':'Спорткар','sports car':'Спорткар','convertible':'Кабриолет',
@@ -264,482 +276,688 @@ function translateLabel(label){
   return label;
 }
 
-// ==================== БАЗА 300+ АВТО ====================
+// ==================== БАЗА 2: ТИПЫ КУЗОВА ====================
+const BODY_TYPES={
+  'sedan':{name:'Седан',desc:'4 двери, отдельный багажник',icon:'🚗'},
+  'coupe':{name:'Купе',desc:'2 двери, спортивный силуэт',icon:'🏎️'},
+  'hatchback':{name:'Хэтчбек',desc:'Компактный, задняя дверь',icon:'🚙'},
+  'suv':{name:'Внедорожник',desc:'Высокий клиренс, полный привод',icon:'🚙'},
+  'crossover':{name:'Кроссовер',desc:'Городской внедорожник',icon:'🚙'},
+  'pickup':{name:'Пикап',desc:'Грузовая платформа',icon:'🛻'},
+  'truck':{name:'Грузовик',desc:'Грузовой автомобиль',icon:'🚚'},
+  'van':{name:'Фургон',desc:'Грузопассажирский',icon:'🚐'},
+  'minivan':{name:'Минивэн',desc:'Семейный, 7+ мест',icon:'🚐'},
+  'convertible':{name:'Кабриолет',desc:'Открытый верх',icon:'🚗'},
+  'roadster':{name:'Родстер',desc:'2 места, открытый',icon:'🏎️'},
+  'wagon':{name:'Универсал',desc:'Удлинённый кузов',icon:'🚗'},
+  'supercar':{name:'Суперкар',desc:'Высокая производительность',icon:'🏎️'},
+  'hypercar':{name:'Гиперкар',desc:'Экстремальная производительность',icon:'🏎️'},
+  'muscle':{name:'Маслкар',desc:'Американский, мощный',icon:'🏎️'},
+  'electric':{name:'Электромобиль',desc:'Электрический привод',icon:'⚡'},
+  'hybrid':{name:'Гибрид',desc:'ДВС + электромотор',icon:'⚡'},
+  'luxury':{name:'Люкс',desc:'Премиальный сегмент',icon:'👑'},
+  'sports':{name:'Спорткар',desc:'Спортивный автомобиль',icon:'🏎️'},
+  'compact':{name:'Компакт',desc:'Малый размер',icon:'🚗'},
+  'family':{name:'Семейный',desc:'Просторный салон',icon:'👨‍👩‍👧‍👦'},
+  'off-road':{name:'Внедорожный',desc:'Для бездорожья',icon:'🏔️'},
+  'classic':{name:'Классический',desc:'Ретро автомобиль',icon:'🕰️'}
+};
+
+function getBodyTypeInfo(type){
+  return BODY_TYPES[type.toLowerCase()]||{name:type,desc:'',icon:'🚗'};
+}
+
+// ==================== БАЗА 3: СТРАНЫ ПРОИЗВОДСТВА ====================
+const COUNTRIES={
+  'Toyota':'Япония','Honda':'Япония','Nissan':'Япония','Mazda':'Япония','Subaru':'Япония','Mitsubishi':'Япония','Suzuki':'Япония','Daihatsu':'Япония','Isuzu':'Япония','Lexus':'Япония','Acura':'Япония','Infiniti':'Япония',
+  'BMW':'Германия','Mercedes-Benz':'Германия','Audi':'Германия','Volkswagen':'Германия','Porsche':'Германия','Opel':'Германия','Smart':'Германия','Alpina':'Германия',
+  'Ford':'США','Chevrolet':'США','Dodge':'США','Jeep':'США','Cadillac':'США','Lincoln':'США','Buick':'США','GMC':'США','Chrysler':'США','Ram':'США','Tesla':'США','Rivian':'США','Lucid':'США','Fisker':'США',
+  'Ferrari':'Италия','Lamborghini':'Италия','Maserati':'Италия','Alfa Romeo':'Италия','Fiat':'Италия','Pagani':'Италия',
+  'Peugeot':'Франция','Renault':'Франция','Citroen':'Франция','Bugatti':'Франция','DS':'Франция',
+  'Volvo':'Швеция','Koenigsegg':'Швеция','Polestar':'Швеция',
+  'Land Rover':'Великобритания','Jaguar':'Великобритания','Bentley':'Великобритания','Rolls-Royce':'Великобритания','Aston Martin':'Великобритания','McLaren':'Великобритания','MINI':'Великобритания','Lotus':'Великобритания',
+  'Hyundai':'Южная Корея','Kia':'Южная Корея','Genesis':'Южная Корея',
+  'Lada':'Россия','UAZ':'Россия','GAZ':'Россия','Moskvich':'Россия','ZAZ':'Украина',
+  'Skoda':'Чехия','Seat':'Испания','Dacia':'Румыния',
+  'Tata':'Индия','Mahindra':'Индия','Maruti':'Индия',
+  'BYD':'Китай','Geely':'Китай','Chery':'Китай','Haval':'Китай','Great Wall':'Китай','Exeed':'Китай',
+  'Proton':'Малайзия','Perodua':'Малайзия',
+  'Rimac':'Хорватия','Alpine':'Франция'
+};
+
+function getCountry(make){
+  return COUNTRIES[make]||'Неизвестно';
+}
+
+// ==================== БАЗА 4: СИНОНИМЫ И АЛЬТЕРНАТИВНЫЕ НАЗВАНИЯ ====================
+const SYNONYMS={
+  'bmw':['бмв','бэха','бимер','beemer','bimmer'],
+  'mercedes':['мерседес','мерс','мерин','merc','benz'],
+  'vw':['фольксваген','фолькс','ваген','вокс'],
+  'chevrolet':['шевроле','шеви','чеви','chevy'],
+  'lamborghini':['ламборгини','ламбо','ламба','ламборджини'],
+  'porsche':['порше','порш','порш'],
+  'ferrari':['феррари','ферра'],
+  'mclaren':['макларен','мак'],
+  'rolls-royce':['роллс-ройс','роллс','ройс'],
+  'bentley':['бентли','бент'],
+  'aston martin':['астон мартин','астон'],
+  'land rover':['ленд ровер','лендровер','ровер'],
+  'range rover':['рейндж ровер','рейндж'],
+  'tesla':['тесла','тесла'],
+  'toyota':['тойота','таёта'],
+  'honda':['хонда','хонда'],
+  'nissan':['ниссан','нисан'],
+  'mazda':['мазда','мазда'],
+  'subaru':['субару','суба'],
+  'hyundai':['хёндэ','хундай','хендай'],
+  'kia':['киа','кия'],
+  'lexus':['лексус','лекс'],
+  'cadillac':['кадиллак','кад'],
+  'jeep':['джип','джип'],
+  'dodge':['додж','додж'],
+  'ford':['форд','форд'],
+  'audi':['ауди','ауди'],
+  'volvo':['вольво','вольво'],
+  'jaguar':['ягуар','яг'],
+  'mini':['мини','мини'],
+  'skoda':['шкода','шкода'],
+  'seat':['сеат','сеат'],
+  'peugeot':['пежо','пежо'],
+  'renault':['рено','рено'],
+  'citroen':['ситроен','ситро'],
+  'fiat':['фиат','фиат'],
+  'opel':['опель','опель'],
+  'suzuki':['сузуки','суз'],
+  'mitsubishi':['митсубиси','митсу'],
+  'isuzu':['исузу','исузу'],
+  'daihatsu':['дайхатсу','дай'],
+  'lada':['лада','ваз','жигули'],
+  'uaz':['уаз','уазик'],
+  'gaz':['газ','газель'],
+  'moskvich':['москвич','моск'],
+  'zaz':['заз','запорожец'],
+  'tata':['тата','тата'],
+  'mahindra':['махиндра','мах'],
+  'maruti':['марути','мар'],
+  'byd':['бид','бид'],
+  'geely':['джили','джи'],
+  'chery':['чери','чери'],
+  'haval':['хавал','хав'],
+  'great wall':['грейт волл','грейт'],
+  'exeed':['иксид','икс'],
+  'proton':['протон','прот'],
+  'perodua':['перодуа','пер'],
+  'rimac':['rimac','rimac'],
+  'lotus':['лотус','лот'],
+  'alpine':['альпин','альп'],
+  'dacia':['дачия','дак'],
+  'polestar':['полестар','пол'],
+  'rivian':['ривиан','рив'],
+  'lucid':['люсид','люс'],
+  'fisker':['фискер','фис'],
+  'koenigsegg':['кёнигсегг','кёниг'],
+  'pagani':['пагани','паг'],
+  'bugatti':['бугатти','буг'],
+  'maserati':['мазерати','маз'],
+  'alfa romeo':['альфа ромео','альфа'],
+  'genesis':['генезис','ген'],
+  'acura':['акура','ак'],
+  'infiniti':['инфинити','инф'],
+  'lincoln':['линкольн','линк'],
+  'buick':['бьюик','бью'],
+  'gmc':['джи эм си','гмс'],
+  'chrysler':['крайслер','край'],
+  'ram':['рам','рам'],
+  'smart':['смарт','смарт']
+};
+
+// ==================== БАЗА 5: ОСНОВНАЯ БАЗА 300+ АВТО ====================
 const DB=[];
-function addCar(make,model,kw,price){
-  DB.push({id:(make+model).toLowerCase().replace(/[^a-z0-9]/g,''),make,model,kw:[make.toLowerCase(),...kw.map(k=>k.toLowerCase())],price});
+function addCar(make,model,kw,price,bodyType){
+  DB.push({
+    id:(make+model).toLowerCase().replace(/[^a-z0-9]/g,''),
+    make,model,
+    kw:[make.toLowerCase(),...kw.map(k=>k.toLowerCase())],
+    price,
+    bodyType:bodyType||'sedan',
+    country:getCountry(make)
+  });
 }
 
 const carData=[
-  ['Toyota','Camry',['camry','sedan','toyota car'],31000],
-  ['Toyota','Corolla',['corolla','sedan','compact'],24000],
-  ['Toyota','RAV4',['rav4','suv','crossover'],32000],
-  ['Toyota','Land Cruiser',['land cruiser','cruiser','suv','off-road'],85000],
-  ['Toyota','Prius',['prius','hybrid','electric'],28000],
-  ['Toyota','Supra',['supra','sports car','coupe'],55000],
-  ['Toyota','Hilux',['hilux','pickup','truck'],35000],
-  ['Toyota','Yaris',['yaris','hatchback','compact'],22000],
-  ['Toyota','Avalon',['avalon','sedan','luxury'],38000],
-  ['Toyota','Highlander',['highlander','suv','family'],42000],
-  ['Honda','Civic',['civic','sedan','compact'],26000],
-  ['Honda','Accord',['accord','sedan','family'],29000],
-  ['Honda','CR-V',['cr-v','suv','crossover'],32000],
-  ['Honda','Pilot',['pilot','suv','family'],42000],
-  ['Honda','HR-V',['hr-v','suv','compact'],28000],
-  ['Honda','Odyssey',['odyssey','minivan','family'],38000],
-  ['Honda','Fit',['fit','hatchback','compact'],20000],
-  ['Honda','NSX',['nsx','supercar','sports car'],160000],
-  ['Honda','S2000',['s2000','roadster','sports car'],40000],
-  ['Honda','Ridgeline',['ridgeline','pickup','truck'],42000],
-  ['BMW','3 Series',['3 series','sedan','bmw 3'],45000],
-  ['BMW','5 Series',['5 series','sedan','bmw 5'],60000],
-  ['BMW','7 Series',['7 series','sedan','luxury'],95000],
-  ['BMW','M3',['m3','sports car','sedan'],75000],
-  ['BMW','M4',['m4','coupe','sports car'],80000],
-  ['BMW','M5',['m5','sedan','sports car'],110000],
-  ['BMW','X3',['x3','suv','crossover'],52000],
-  ['BMW','X5',['x5','suv','luxury'],72000],
-  ['BMW','X7',['x7','suv','luxury'],85000],
-  ['BMW','Z4',['z4','roadster','convertible'],55000],
-  ['BMW','i8',['i8','hybrid','supercar'],150000],
-  ['BMW','M2',['m2','coupe','sports car'],65000],
-  ['BMW','M8',['m8','coupe','luxury'],135000],
-  ['BMW','X1',['x1','suv','compact'],42000],
-  ['BMW','X6',['x6','suv','coupe'],78000],
-  ['Mercedes-Benz','C-Class',['c-class','sedan','mercedes'],50000],
-  ['Mercedes-Benz','E-Class',['e-class','sedan','luxury'],62000],
-  ['Mercedes-Benz','S-Class',['s-class','sedan','luxury'],115000],
-  ['Mercedes-Benz','A-Class',['a-class','hatchback','compact'],40000],
-  ['Mercedes-Benz','GLC',['glc','suv','crossover'],55000],
-  ['Mercedes-Benz','GLE',['gle','suv','luxury'],72000],
-  ['Mercedes-Benz','GLS',['gls','suv','luxury'],88000],
-  ['Mercedes-Benz','G-Class',['g-class','suv','off-road'],160000],
-  ['Mercedes-Benz','AMG GT',['amg gt','sports car','coupe'],130000],
-  ['Mercedes-Benz','SL',['sl','convertible','luxury'],110000],
-  ['Mercedes-Benz','CLA',['cla','sedan','coupe'],45000],
-  ['Mercedes-Benz','CLS',['cls','sedan','coupe'],75000],
-  ['Mercedes-Benz','EQS',['eqs','electric','luxury'],105000],
-  ['Mercedes-Benz','Maybach',['maybach','luxury','sedan'],200000],
-  ['Audi','A3',['a3','hatchback','sedan'],38000],
-  ['Audi','A4',['a4','sedan','family'],45000],
-  ['Audi','A6',['a6','sedan','luxury'],62000],
-  ['Audi','A8',['a8','sedan','luxury'],90000],
-  ['Audi','Q3',['q3','suv','compact'],42000],
-  ['Audi','Q5',['q5','suv','crossover'],52000],
-  ['Audi','Q7',['q7','suv','luxury'],68000],
-  ['Audi','Q8',['q8','suv','coupe'],80000],
-  ['Audi','TT',['tt','coupe','sports car'],55000],
-  ['Audi','R8',['r8','supercar','sports car'],170000],
-  ['Audi','RS6',['rs6','wagon','sports car'],120000],
-  ['Audi','RS7',['rs7','sedan','sports car'],125000],
-  ['Audi','e-tron',['e-tron','electric','suv'],75000],
-  ['Audi','RS3',['rs3','sedan','sports car'],62000],
-  ['Audi','S4',['s4','sedan','sports car'],55000],
-  ['Ford','Mustang',['mustang','sports car','coupe'],42000],
-  ['Ford','F-150',['f-150','f150','pickup','truck'],55000],
-  ['Ford','Focus',['focus','hatchback','sedan'],25000],
-  ['Ford','Fiesta',['fiesta','hatchback','compact'],20000],
-  ['Ford','Explorer',['explorer','suv','family'],52000],
-  ['Ford','Escape',['escape','suv','crossover'],35000],
-  ['Ford','Bronco',['bronco','suv','off-road'],45000],
-  ['Ford','GT',['gt','supercar','sports car'],500000],
-  ['Ford','Fusion',['fusion','sedan','family'],28000],
-  ['Ford','Edge',['edge','suv','crossover'],42000],
-  ['Ford','Maverick',['maverick','pickup','compact'],30000],
-  ['Ford','Ranger',['ranger','pickup','truck'],38000],
-  ['Chevrolet','Camaro',['camaro','sports car','muscle car'],42000],
-  ['Chevrolet','Corvette',['corvette','sports car','supercar'],75000],
-  ['Chevrolet','Silverado',['silverado','pickup','truck'],48000],
-  ['Chevrolet','Malibu',['malibu','sedan','family'],28000],
-  ['Chevrolet','Impala',['impala','sedan','family'],32000],
-  ['Chevrolet','Tahoe',['tahoe','suv','family'],58000],
-  ['Chevrolet','Suburban',['suburban','suv','family'],62000],
-  ['Chevrolet','Equinox',['equinox','suv','crossover'],32000],
-  ['Chevrolet','Bolt',['bolt','electric','hatchback'],32000],
-  ['Chevrolet','Blazer',['blazer','suv','crossover'],42000],
-  ['Chevrolet','Trailblazer',['trailblazer','suv','compact'],28000],
-  ['Nissan','GT-R',['gt-r','gtr','sports car','supercar'],115000],
-  ['Nissan','370Z',['370z','sports car','coupe'],42000],
-  ['Nissan','Altima',['altima','sedan','family'],28000],
-  ['Nissan','Maxima',['maxima','sedan','luxury'],42000],
-  ['Nissan','Sentra',['sentra','sedan','compact'],22000],
-  ['Nissan','Rogue',['rogue','suv','crossover'],32000],
-  ['Nissan','Pathfinder',['pathfinder','suv','family'],42000],
-  ['Nissan','Leaf',['leaf','electric','hatchback'],32000],
-  ['Nissan','Frontier',['frontier','pickup','truck'],35000],
-  ['Nissan','Titan',['titan','pickup','truck'],45000],
-  ['Nissan','Juke',['juke','suv','compact'],25000],
-  ['Nissan','Murano',['murano','suv','crossover'],38000],
-  ['Porsche','911',['911','carrera','sports car'],115000],
-  ['Porsche','Cayenne',['cayenne','suv','luxury'],85000],
-  ['Porsche','Macan',['macan','suv','crossover'],68000],
-  ['Porsche','Panamera',['panamera','sedan','luxury'],95000],
-  ['Porsche','Taycan',['taycan','electric','sedan'],90000],
-  ['Porsche','Boxster',['boxster','roadster','convertible'],68000],
-  ['Porsche','Cayman',['cayman','coupe','sports car'],72000],
-  ['Porsche','718',['718','sports car','coupe'],75000],
-  ['Volkswagen','Golf',['golf','hatchback','gti'],32000],
-  ['Volkswagen','Passat',['passat','sedan','family'],32000],
-  ['Volkswagen','Jetta',['jetta','sedan','compact'],25000],
-  ['Volkswagen','Tiguan',['tiguan','suv','crossover'],35000],
-  ['Volkswagen','Touareg',['touareg','suv','luxury'],58000],
-  ['Volkswagen','Polo',['polo','hatchback','compact'],22000],
-  ['Volkswagen','Beetle',['beetle','hatchback','classic'],25000],
-  ['Volkswagen','Arteon',['arteon','sedan','coupe'],45000],
-  ['Volkswagen','ID.4',['id.4','electric','suv'],45000],
-  ['Volkswagen','Atlas',['atlas','suv','family'],42000],
-  ['Tesla','Model 3',['model 3','sedan','electric'],42000],
-  ['Tesla','Model Y',['model y','suv','electric'],52000],
-  ['Tesla','Model S',['model s','sedan','electric'],85000],
-  ['Tesla','Model X',['model x','suv','electric'],95000],
-  ['Tesla','Cybertruck',['cybertruck','pickup','electric'],80000],
-  ['Tesla','Roadster',['roadster','sports car','electric'],200000],
-  ['Ferrari','488',['488','f8','supercar','sports car'],280000],
-  ['Ferrari','F8 Tributo',['f8','tributo','supercar'],280000],
-  ['Ferrari','SF90',['sf90','hybrid','supercar'],520000],
-  ['Ferrari','Roma',['roma','coupe','luxury'],245000],
-  ['Ferrari','Portofino',['portofino','convertible','luxury'],220000],
-  ['Ferrari','812',['812','superfast','supercar'],340000],
-  ['Ferrari','LaFerrari',['laferrari','hypercar','supercar'],1500000],
-  ['Ferrari','California',['california','convertible','luxury'],200000],
-  ['Ferrari','458',['458','italia','supercar'],250000],
-  ['Ferrari','F40',['f40','classic','supercar'],2000000],
-  ['Ferrari','Enzo',['enzo','hypercar','supercar'],3000000],
-  ['Lamborghini','Huracán',['huracan','supercar','sports car'],245000],
-  ['Lamborghini','Aventador',['aventador','supercar','v12'],420000],
-  ['Lamborghini','Urus',['urus','suv','supercar'],230000],
-  ['Lamborghini','Gallardo',['gallardo','supercar','classic'],180000],
-  ['Lamborghini','Murciélago',['murcielago','supercar','v12'],350000],
-  ['Lamborghini','Diablo',['diablo','supercar','classic'],400000],
-  ['Lamborghini','Countach',['countach','supercar','classic'],500000],
-  ['Lamborghini','Revuelto',['revuelto','supercar','hybrid'],600000],
-  ['Dodge','Challenger',['challenger','muscle car','coupe'],45000],
-  ['Dodge','Charger',['charger','sedan','muscle car'],42000],
-  ['Dodge','Viper',['viper','supercar','sports car'],120000],
-  ['Dodge','Durango',['durango','suv','family'],48000],
-  ['Dodge','Ram',['ram','pickup','truck'],55000],
-  ['Dodge','Demon',['demon','muscle car','challenger'],85000],
-  ['Dodge','Hellcat',['hellcat','muscle car','charger'],75000],
-  ['Jeep','Wrangler',['wrangler','suv','off-road'],48000],
-  ['Jeep','Cherokee',['cherokee','suv','crossover'],38000],
-  ['Jeep','Grand Cherokee',['grand cherokee','suv','luxury'],52000],
-  ['Jeep','Gladiator',['gladiator','pickup','off-road'],52000],
-  ['Jeep','Compass',['compass','suv','compact'],32000],
-  ['Jeep','Renegade',['renegade','suv','compact'],28000],
-  ['Land Rover','Range Rover',['range rover','suv','luxury'],115000],
-  ['Land Rover','Defender',['defender','suv','off-road'],75000],
-  ['Land Rover','Discovery',['discovery','suv','family'],68000],
-  ['Land Rover','Evoque',['evoque','suv','compact'],52000],
-  ['Land Rover','Velar',['velar','suv','coupe'],72000],
-  ['Land Rover','Sport',['sport','suv','luxury'],88000],
-  ['Hyundai','Sonata',['sonata','sedan','family'],28000],
-  ['Hyundai','Elantra',['elantra','sedan','compact'],22000],
-  ['Hyundai','Tucson',['tucson','suv','crossover'],32000],
-  ['Hyundai','Santa Fe',['santa fe','suv','family'],38000],
-  ['Hyundai','Palisade',['palisade','suv','luxury'],48000],
-  ['Hyundai','Kona',['kona','suv','compact'],25000],
-  ['Hyundai','Ioniq 5',['ioniq','electric','suv'],45000],
-  ['Hyundai','Veloster',['veloster','hatchback','coupe'],25000],
-  ['Hyundai','Accent',['accent','sedan','compact'],18000],
-  ['Hyundai','Genesis',['genesis','sedan','luxury'],55000],
-  ['Kia','K5',['k5','optima','sedan'],28000],
-  ['Kia','Sorento',['sorento','suv','family'],35000],
-  ['Kia','Sportage',['sportage','suv','crossover'],32000],
-  ['Kia','Telluride',['telluride','suv','luxury'],48000],
-  ['Kia','Stinger',['stinger','sedan','sports car'],42000],
-  ['Kia','Soul',['soul','hatchback','compact'],22000],
-  ['Kia','Rio',['rio','sedan','compact'],18000],
-  ['Kia','Forte',['forte','sedan','compact'],22000],
-  ['Kia','EV6',['ev6','electric','suv'],52000],
-  ['Mazda','Mazda3',['mazda3','sedan','hatchback'],26000],
-  ['Mazda','Mazda6',['mazda6','sedan','family'],32000],
-  ['Mazda','MX-5',['mx-5','miata','roadster'],30000],
-  ['Mazda','CX-5',['cx-5','suv','crossover'],32000],
-  ['Mazda','CX-9',['cx-9','suv','family'],42000],
-  ['Mazda','RX-7',['rx-7','sports car','rotary'],45000],
-  ['Mazda','RX-8',['rx-8','sports car','rotary'],35000],
-  ['Mazda','CX-30',['cx-30','suv','compact'],28000],
-  ['Mazda','CX-50',['cx-50','suv','crossover'],35000],
-  ['Subaru','WRX',['wrx','sedan','sports car'],32000],
-  ['Subaru','Impreza',['impreza','sedan','hatchback'],25000],
-  ['Subaru','Outback',['outback','wagon','suv'],32000],
-  ['Subaru','Forester',['forester','suv','crossover'],32000],
-  ['Subaru','BRZ',['brz','coupe','sports car'],30000],
-  ['Subaru','Legacy',['legacy','sedan','family'],28000],
-  ['Subaru','Crosstrek',['crosstrek','suv','compact'],28000],
-  ['Subaru','Ascent',['ascent','suv','family'],42000],
-  ['Lexus','IS',['is','sedan','sports car'],42000],
-  ['Lexus','ES',['es','sedan','luxury'],48000],
-  ['Lexus','GS',['gs','sedan','luxury'],52000],
-  ['Lexus','LS',['ls','sedan','luxury'],82000],
-  ['Lexus','RX',['rx','suv','luxury'],55000],
-  ['Lexus','NX',['nx','suv','crossover'],45000],
-  ['Lexus','GX',['gx','suv','off-road'],62000],
-  ['Lexus','LX',['lx','suv','luxury'],92000],
-  ['Lexus','LC',['lc','coupe','luxury'],95000],
-  ['Lexus','RC',['rc','coupe','sports car'],48000],
-  ['Acura','TLX',['tlx','sedan','sports car'],42000],
-  ['Acura','RLX',['rlx','sedan','luxury'],55000],
-  ['Acura','MDX',['mdx','suv','family'],55000],
-  ['Acura','RDX',['rdx','suv','crossover'],45000],
-  ['Acura','NSX',['nsx','supercar','hybrid'],160000],
-  ['Acura','Integra',['integra','sedan','sports car'],35000],
-  ['Infiniti','Q50',['q50','sedan','sports car'],42000],
-  ['Infiniti','Q60',['q60','coupe','sports car'],48000],
-  ['Infiniti','Q70',['q70','sedan','luxury'],55000],
-  ['Infiniti','QX50',['qx50','suv','crossover'],45000],
-  ['Infiniti','QX60',['qx60','suv','family'],55000],
-  ['Infiniti','QX80',['qx80','suv','luxury'],75000],
-  ['Volvo','XC90',['xc90','suv','luxury'],62000],
-  ['Volvo','XC60',['xc60','suv','crossover'],52000],
-  ['Volvo','XC40',['xc40','suv','compact'],42000],
-  ['Volvo','S90',['s90','sedan','luxury'],58000],
-  ['Volvo','S60',['s60','sedan','sports car'],45000],
-  ['Volvo','V90',['v90','wagon','luxury'],58000],
-  ['Volvo','C40',['c40','electric','suv'],55000],
-  ['Jaguar','F-Type',['f-type','sports car','coupe'],75000],
-  ['Jaguar','XE',['xe','sedan','sports car'],45000],
-  ['Jaguar','XF',['xf','sedan','luxury'],55000],
-  ['Jaguar','XJ',['xj','sedan','luxury'],85000],
-  ['Jaguar','F-Pace',['f-pace','suv','crossover'],58000],
-  ['Jaguar','E-Pace',['e-pace','suv','compact'],48000],
-  ['Jaguar','I-Pace',['i-pace','electric','suv'],72000],
-  ['Bentley','Continental GT',['continental','gt','coupe'],220000],
-  ['Bentley','Flying Spur',['flying spur','sedan','luxury'],215000],
-  ['Bentley','Bentayga',['bentayga','suv','luxury'],195000],
-  ['Bentley','Mulsanne',['mulsanne','sedan','luxury'],310000],
-  ['Rolls-Royce','Phantom',['phantom','sedan','luxury'],460000],
-  ['Rolls-Royce','Ghost',['ghost','sedan','luxury'],350000],
-  ['Rolls-Royce','Cullinan',['cullinan','suv','luxury'],340000],
-  ['Rolls-Royce','Wraith',['wraith','coupe','luxury'],330000],
-  ['Rolls-Royce','Dawn',['dawn','convertible','luxury'],350000],
-  ['Aston Martin','DB11',['db11','coupe','luxury'],210000],
-  ['Aston Martin','DBS',['dbs','coupe','supercar'],320000],
-  ['Aston Martin','Vantage',['vantage','coupe','sports car'],150000],
-  ['Aston Martin','DBX',['dbx','suv','luxury'],190000],
-  ['Aston Martin','Valkyrie',['valkyrie','hypercar','supercar'],3200000],
-  ['Aston Martin','Rapide',['rapide','sedan','luxury'],210000],
-  ['McLaren','720S',['720s','supercar','sports car'],300000],
-  ['McLaren','570S',['570s','supercar','sports car'],210000],
-  ['McLaren','600LT',['600lt','supercar','sports car'],250000],
-  ['McLaren','765LT',['765lt','supercar','sports car'],360000],
-  ['McLaren','P1',['p1','hypercar','hybrid'],1400000],
-  ['McLaren','Artura',['artura','hybrid','supercar'],235000],
-  ['McLaren','GT',['gt','coupe','luxury'],215000],
-  ['Bugatti','Chiron',['chiron','hypercar','supercar'],3000000],
-  ['Bugatti','Veyron',['veyron','hypercar','supercar'],2000000],
-  ['Bugatti','Divo',['divo','hypercar','supercar'],5800000],
-  ['Bugatti','Bolide',['bolide','hypercar','track'],4700000],
-  ['Maserati','Ghibli',['ghibli','sedan','luxury'],82000],
-  ['Maserati','Quattroporte',['quattroporte','sedan','luxury'],105000],
-  ['Maserati','Levante',['levante','suv','luxury'],92000],
-  ['Maserati','MC20',['mc20','supercar','sports car'],220000],
-  ['Maserati','GranTurismo',['granturismo','coupe','luxury'],150000],
-  ['Alfa Romeo','Giulia',['giulia','sedan','sports car'],48000],
-  ['Alfa Romeo','Stelvio',['stelvio','suv','crossover'],52000],
-  ['Alfa Romeo','4C',['4c','coupe','sports car'],68000],
-  ['Alfa Romeo','Giulietta',['giulietta','hatchback','compact'],32000],
-  ['Fiat','500',['500','cinquecento','hatchback'],22000],
-  ['Fiat','Panda',['panda','hatchback','compact'],18000],
-  ['Fiat','Tipo',['tipo','sedan','hatchback'],20000],
-  ['Fiat','124 Spider',['124','spider','roadster'],28000],
-  ['Peugeot','208',['208','hatchback','compact'],22000],
-  ['Peugeot','308',['308','hatchback','family'],28000],
-  ['Peugeot','508',['508','sedan','wagon'],35000],
-  ['Peugeot','2008',['2008','suv','compact'],28000],
-  ['Peugeot','3008',['3008','suv','crossover'],35000],
-  ['Peugeot','5008',['5008','suv','family'],42000],
-  ['Renault','Clio',['clio','hatchback','compact'],20000],
-  ['Renault','Megane',['megane','hatchback','family'],28000],
-  ['Renault','Captur',['captur','suv','compact'],25000],
-  ['Renault','Kadjar',['kadjar','suv','crossover'],32000],
-  ['Renault','Zoe',['zoe','electric','hatchback'],32000],
-  ['Renault','Talisman',['talisman','sedan','wagon'],35000],
-  ['Citroen','C3',['c3','hatchback','compact'],20000],
-  ['Citroen','C4',['c4','hatchback','family'],25000],
-  ['Citroen','C5',['c5','sedan','wagon'],32000],
-  ['Citroen','Berlingo',['berlingo','van','family'],28000],
-  ['Citroen','DS3',['ds3','hatchback','premium'],25000],
-  ['Opel','Corsa',['corsa','hatchback','compact'],20000],
-  ['Opel','Astra',['astra','hatchback','family'],25000],
-  ['Opel','Insignia',['insignia','sedan','wagon'],32000],
-  ['Opel','Mokka',['mokka','suv','compact'],28000],
-  ['Opel','Grandland',['grandland','suv','crossover'],35000],
-  ['Skoda','Octavia',['octavia','sedan','wagon'],28000],
-  ['Skoda','Superb',['superb','sedan','wagon'],35000],
-  ['Skoda','Fabia',['fabia','hatchback','compact'],18000],
-  ['Skoda','Kodiaq',['kodiaq','suv','family'],38000],
-  ['Skoda','Karoq',['karoq','suv','compact'],32000],
-  ['Skoda','Scala',['scala','hatchback','family'],25000],
-  ['Seat','Leon',['leon','hatchback','family'],28000],
-  ['Seat','Ibiza',['ibiza','hatchback','compact'],20000],
-  ['Seat','Ateca',['ateca','suv','crossover'],32000],
-  ['Seat','Arona',['arona','suv','compact'],25000],
-  ['Seat','Tarraco',['tarraco','suv','family'],38000],
-  ['MINI','Cooper',['mini','cooper','hatchback'],28000],
-  ['MINI','Countryman',['countryman','suv','compact'],35000],
-  ['MINI','Clubman',['clubman','wagon','hatchback'],32000],
-  ['MINI','Cabrio',['cabrio','convertible','hatchback'],32000],
-  ['Smart','Fortwo',['fortwo','micro','city'],18000],
-  ['Smart','Forfour',['forfour','hatchback','city'],22000],
-  ['Suzuki','Swift',['swift','hatchback','compact'],18000],
-  ['Suzuki','Vitara',['vitara','suv','compact'],25000],
-  ['Suzuki','Jimny',['jimny','suv','off-road'],28000],
-  ['Suzuki','SX4',['sx4','hatchback','crossover'],22000],
-  ['Suzuki','Baleno',['baleno','hatchback','compact'],18000],
-  ['Suzuki','Ignis',['ignis','hatchback','compact'],16000],
-  ['Mitsubishi','Outlander',['outlander','suv','family'],32000],
-  ['Mitsubishi','Lancer',['lancer','sedan','compact'],22000],
-  ['Mitsubishi','Pajero',['pajero','suv','off-road'],42000],
-  ['Mitsubishi','Eclipse',['eclipse','coupe','sports car'],28000],
-  ['Mitsubishi','ASX',['asx','suv','compact'],25000],
-  ['Mitsubishi','L200',['l200','pickup','truck'],32000],
-  ['Isuzu','D-Max',['d-max','pickup','truck'],32000],
-  ['Isuzu','MU-X',['mu-x','suv','family'],38000],
-  ['Isuzu','Trooper',['trooper','suv','off-road'],28000],
-  ['Daihatsu','Terios',['terios','suv','compact'],22000],
-  ['Daihatsu','Sirion',['sirion','hatchback','compact'],16000],
-  ['Daihatsu','Copen',['copen','roadster','convertible'],25000],
-  ['Lada','Vesta',['vesta','sedan','russian'],12000],
-  ['Lada','Granta',['granta','sedan','compact'],10000],
-  ['Lada','Niva',['niva','suv','off-road'],12000],
-  ['Lada','XRAY',['xray','hatchback','crossover'],12000],
-  ['Lada','Largus',['largus','wagon','van'],11000],
-  ['Lada','Priora',['priora','sedan','compact'],9000],
-  ['UAZ','Patriot',['patriot','suv','off-road'],15000],
-  ['UAZ','Hunter',['hunter','suv','off-road'],12000],
-  ['UAZ','Bukhanka',['bukhanka','van','off-road'],10000],
-  ['GAZ','Gazelle',['gazelle','van','truck'],15000],
-  ['GAZ','Volga',['volga','sedan','classic'],8000],
-  ['GAZ','Sobol',['sobol','van','truck'],14000],
-  ['Moskvich','3',['moskvich 3','sedan','russian'],15000],
-  ['Moskvich','412',['412','sedan','classic'],5000],
-  ['Moskvich','2141',['2141','hatchback','classic'],4000],
-  ['ZAZ','Zaporozhets',['zaporozhets','classic','compact'],3000],
-  ['ZAZ','Tavria',['tavria','hatchback','compact'],4000],
-  ['ZAZ','Slavuta',['slavuta','hatchback','compact'],4500],
-  ['Cadillac','Escalade',['escalade','suv','luxury'],85000],
-  ['Cadillac','CT5',['ct5','sedan','luxury'],48000],
-  ['Cadillac','CT4',['ct4','sedan','sports car'],42000],
-  ['Cadillac','XT5',['xt5','suv','crossover'],52000],
-  ['Cadillac','XT6',['xt6','suv','family'],62000],
-  ['Cadillac','CTS',['cts','sedan','luxury'],45000],
-  ['Cadillac','ATS',['ats','sedan','sports car'],42000],
-  ['Lincoln','Navigator',['navigator','suv','luxury'],82000],
-  ['Lincoln','Aviator',['aviator','suv','luxury'],68000],
-  ['Lincoln','Corsair',['corsair','suv','compact'],48000],
-  ['Lincoln','Nautilus',['nautilus','suv','crossover'],55000],
-  ['Buick','Enclave',['enclave','suv','family'],52000],
-  ['Buick','Encore',['encore','suv','compact'],28000],
-  ['Buick','Regal',['regal','sedan','family'],32000],
-  ['Buick','LaCrosse',['lacrosse','sedan','luxury'],38000],
-  ['GMC','Sierra',['sierra','pickup','truck'],48000],
-  ['GMC','Yukon',['yukon','suv','family'],62000],
-  ['GMC','Terrain',['terrain','suv','crossover'],35000],
-  ['GMC','Acadia',['acadia','suv','family'],45000],
-  ['GMC','Canyon',['canyon','pickup','truck'],38000],
-  ['Chrysler','300',['300','sedan','luxury'],38000],
-  ['Chrysler','Pacifica',['pacifica','minivan','family'],42000],
-  ['Chrysler','Voyager',['voyager','minivan','family'],35000],
-  ['Ram','1500',['1500','pickup','truck'],55000],
-  ['Ram','2500',['2500','pickup','truck'],62000],
-  ['Ram','ProMaster',['promaster','van','truck'],38000],
-  ['Genesis','G70',['g70','sedan','sports car'],45000],
-  ['Genesis','G80',['g80','sedan','luxury'],58000],
-  ['Genesis','G90',['g90','sedan','luxury'],82000],
-  ['Genesis','GV70',['gv70','suv','crossover'],52000],
-  ['Genesis','GV80',['gv80','suv','luxury'],65000],
-  ['Polestar','1',['polestar 1','coupe','electric'],155000],
-  ['Polestar','2',['polestar 2','sedan','electric'],50000],
-  ['Polestar','3',['polestar 3','suv','electric'],85000],
-  ['Polestar','4',['polestar 4','suv','electric'],65000],
-  ['Rivian','R1T',['r1t','pickup','electric'],75000],
-  ['Rivian','R1S',['r1s','suv','electric'],78000],
-  ['Lucid','Air',['air','sedan','electric'],88000],
-  ['Lucid','Gravity',['gravity','suv','electric'],95000],
-  ['Fisker','Ocean',['ocean','suv','electric'],38000],
-  ['Fisker','Karma',['karma','sedan','hybrid'],135000],
-  ['Koenigsegg','Jesko',['jesko','hypercar','supercar'],3000000],
-  ['Koenigsegg','Agera',['agera','hypercar','supercar'],2500000],
-  ['Koenigsegg','Regera',['regera','hypercar','hybrid'],2000000],
-  ['Koenigsegg','Gemera',['gemera','hypercar','hybrid'],1700000],
-  ['Pagani','Huayra',['huayra','hypercar','supercar'],2800000],
-  ['Pagani','Zonda',['zonda','hypercar','supercar'],2000000],
-  ['Pagani','Utopia',['utopia','hypercar','supercar'],3400000],
-  ['Rimac','Nevera',['nevera','hypercar','electric'],2400000],
-  ['Rimac','C_Two',['c_two','hypercar','electric'],2000000],
-  ['Lotus','Emira',['emira','coupe','sports car'],85000],
-  ['Lotus','Evija',['evija','hypercar','electric'],2200000],
-  ['Lotus','Elise',['elise','roadster','sports car'],55000],
-  ['Lotus','Exige',['exige','coupe','sports car'],75000],
-  ['Lotus','Europa',['europa','coupe','classic'],45000],
-  ['Alpine','A110',['a110','coupe','sports car'],68000],
-  ['Alpine','A110S',['a110s','coupe','sports car'],78000],
-  ['Dacia','Sandero',['sandero','hatchback','compact'],12000],
-  ['Dacia','Duster',['duster','suv','compact'],18000],
-  ['Dacia','Logan',['logan','sedan','compact'],10000],
-  ['Dacia','Spring',['spring','electric','compact'],22000],
-  ['Proton','Saga',['saga','sedan','compact'],12000],
-  ['Proton','Persona',['persona','sedan','compact'],15000],
-  ['Proton','X70',['x70','suv','crossover'],25000],
-  ['Perodua','Myvi',['myvi','hatchback','compact'],12000],
-  ['Perodua','Axia',['axia','hatchback','compact'],10000],
-  ['Perodua','Bezza',['bezza','sedan','compact'],12000],
-  ['Tata','Nexon',['nexon','suv','compact'],12000],
-  ['Tata','Harrier',['harrier','suv','family'],18000],
-  ['Tata','Safari',['safari','suv','family'],20000],
-  ['Tata','Punch',['punch','suv','compact'],10000],
-  ['Tata','Altroz',['altroz','hatchback','compact'],10000],
-  ['Mahindra','Thar',['thar','suv','off-road'],15000],
-  ['Mahindra','XUV700',['xuv700','suv','family'],22000],
-  ['Mahindra','Scorpio',['scorpio','suv','family'],18000],
-  ['Mahindra','Bolero',['bolero','suv','off-road'],12000],
-  ['Maruti','Swift',['swift','hatchback','compact'],8000],
-  ['Maruti','Dzire',['dzire','sedan','compact'],10000],
-  ['Maruti','Baleno',['baleno','hatchback','compact'],9000],
-  ['Maruti','Alto',['alto','hatchback','compact'],7000],
-  ['Maruti','Brezza',['brezza','suv','compact'],12000],
-  ['BYD','Han',['han','sedan','electric'],35000],
-  ['BYD','Tang',['tang','suv','electric'],42000],
-  ['BYD','Song',['song','suv','electric'],28000],
-  ['BYD','Seal',['seal','sedan','electric'],32000],
-  ['BYD','Atto 3',['atto','suv','electric'],35000],
-  ['BYD','Dolphin',['dolphin','hatchback','electric'],25000],
-  ['Geely','Emgrand',['emgrand','sedan','compact'],15000],
-  ['Geely','Coolray',['coolray','suv','compact'],18000],
-  ['Geely','Atlas',['atlas','suv','crossover'],22000],
-  ['Geely','Tugella',['tugella','suv','coupe'],28000],
-  ['Geely','Monjaro',['monjaro','suv','luxury'],35000],
-  ['Chery','Tiggo 7',['tiggo 7','suv','compact'],18000],
-  ['Chery','Tiggo 8',['tiggo 8','suv','family'],22000],
-  ['Chery','Arrizo',['arrizo','sedan','compact'],15000],
-  ['Chery','Omoda',['omoda','suv','crossover'],20000],
-  ['Haval','Jolion',['jolion','suv','compact'],18000],
-  ['Haval','F7',['f7','suv','crossover'],22000],
-  ['Haval','H9',['h9','suv','off-road'],32000],
-  ['Haval','Dargo',['dargo','suv','off-road'],25000],
-  ['Haval','M6',['m6','suv','compact'],18000],
-  ['Great Wall','Poer',['poer','pickup','truck'],25000],
-  ['Great Wall','Wingle',['wingle','pickup','truck'],20000],
-  ['Great Wall','Tank 300',['tank 300','suv','off-road'],28000],
-  ['Great Wall','Tank 500',['tank 500','suv','luxury'],42000],
-  ['Exeed','TXL',['txl','suv','crossover'],28000],
-  ['Exeed','VX',['vx','suv','luxury'],35000],
-  ['Exeed','LX',['lx','suv','compact'],25000]
+  ['Toyota','Camry',['camry','sedan','toyota car'],31000,'sedan'],
+  ['Toyota','Corolla',['corolla','sedan','compact'],24000,'sedan'],
+  ['Toyota','RAV4',['rav4','suv','crossover'],32000,'suv'],
+  ['Toyota','Land Cruiser',['land cruiser','cruiser','suv','off-road'],85000,'suv'],
+  ['Toyota','Prius',['prius','hybrid','electric'],28000,'hybrid'],
+  ['Toyota','Supra',['supra','sports car','coupe'],55000,'sports'],
+  ['Toyota','Hilux',['hilux','pickup','truck'],35000,'pickup'],
+  ['Toyota','Yaris',['yaris','hatchback','compact'],22000,'hatchback'],
+  ['Toyota','Avalon',['avalon','sedan','luxury'],38000,'luxury'],
+  ['Toyota','Highlander',['highlander','suv','family'],42000,'suv'],
+  ['Honda','Civic',['civic','sedan','compact'],26000,'sedan'],
+  ['Honda','Accord',['accord','sedan','family'],29000,'sedan'],
+  ['Honda','CR-V',['cr-v','suv','crossover'],32000,'suv'],
+  ['Honda','Pilot',['pilot','suv','family'],42000,'suv'],
+  ['Honda','HR-V',['hr-v','suv','compact'],28000,'suv'],
+  ['Honda','Odyssey',['odyssey','minivan','family'],38000,'minivan'],
+  ['Honda','Fit',['fit','hatchback','compact'],20000,'hatchback'],
+  ['Honda','NSX',['nsx','supercar','sports car'],160000,'supercar'],
+  ['Honda','S2000',['s2000','roadster','sports car'],40000,'roadster'],
+  ['Honda','Ridgeline',['ridgeline','pickup','truck'],42000,'pickup'],
+  ['BMW','3 Series',['3 series','sedan','bmw 3'],45000,'sedan'],
+  ['BMW','5 Series',['5 series','sedan','bmw 5'],60000,'sedan'],
+  ['BMW','7 Series',['7 series','sedan','luxury'],95000,'luxury'],
+  ['BMW','M3',['m3','sports car','sedan'],75000,'sports'],
+  ['BMW','M4',['m4','coupe','sports car'],80000,'coupe'],
+  ['BMW','M5',['m5','sedan','sports car'],110000,'sports'],
+  ['BMW','X3',['x3','suv','crossover'],52000,'suv'],
+  ['BMW','X5',['x5','suv','luxury'],72000,'suv'],
+  ['BMW','X7',['x7','suv','luxury'],85000,'suv'],
+  ['BMW','Z4',['z4','roadster','convertible'],55000,'roadster'],
+  ['BMW','i8',['i8','hybrid','supercar'],150000,'hybrid'],
+  ['BMW','M2',['m2','coupe','sports car'],65000,'coupe'],
+  ['BMW','M8',['m8','coupe','luxury'],135000,'coupe'],
+  ['BMW','X1',['x1','suv','compact'],42000,'suv'],
+  ['BMW','X6',['x6','suv','coupe'],78000,'suv'],
+  ['Mercedes-Benz','C-Class',['c-class','sedan','mercedes'],50000,'sedan'],
+  ['Mercedes-Benz','E-Class',['e-class','sedan','luxury'],62000,'luxury'],
+  ['Mercedes-Benz','S-Class',['s-class','sedan','luxury'],115000,'luxury'],
+  ['Mercedes-Benz','A-Class',['a-class','hatchback','compact'],40000,'hatchback'],
+  ['Mercedes-Benz','GLC',['glc','suv','crossover'],55000,'suv'],
+  ['Mercedes-Benz','GLE',['gle','suv','luxury'],72000,'suv'],
+  ['Mercedes-Benz','GLS',['gls','suv','luxury'],88000,'suv'],
+  ['Mercedes-Benz','G-Class',['g-class','suv','off-road'],160000,'suv'],
+  ['Mercedes-Benz','AMG GT',['amg gt','sports car','coupe'],130000,'sports'],
+  ['Mercedes-Benz','SL',['sl','convertible','luxury'],110000,'convertible'],
+  ['Mercedes-Benz','CLA',['cla','sedan','coupe'],45000,'coupe'],
+  ['Mercedes-Benz','CLS',['cls','sedan','coupe'],75000,'coupe'],
+  ['Mercedes-Benz','EQS',['eqs','electric','luxury'],105000,'electric'],
+  ['Mercedes-Benz','Maybach',['maybach','luxury','sedan'],200000,'luxury'],
+  ['Audi','A3',['a3','hatchback','sedan'],38000,'hatchback'],
+  ['Audi','A4',['a4','sedan','family'],45000,'sedan'],
+  ['Audi','A6',['a6','sedan','luxury'],62000,'luxury'],
+  ['Audi','A8',['a8','sedan','luxury'],90000,'luxury'],
+  ['Audi','Q3',['q3','suv','compact'],42000,'suv'],
+  ['Audi','Q5',['q5','suv','crossover'],52000,'suv'],
+  ['Audi','Q7',['q7','suv','luxury'],68000,'suv'],
+  ['Audi','Q8',['q8','suv','coupe'],80000,'suv'],
+  ['Audi','TT',['tt','coupe','sports car'],55000,'coupe'],
+  ['Audi','R8',['r8','supercar','sports car'],170000,'supercar'],
+  ['Audi','RS6',['rs6','wagon','sports car'],120000,'wagon'],
+  ['Audi','RS7',['rs7','sedan','sports car'],125000,'sports'],
+  ['Audi','e-tron',['e-tron','electric','suv'],75000,'electric'],
+  ['Audi','RS3',['rs3','sedan','sports car'],62000,'sports'],
+  ['Audi','S4',['s4','sedan','sports car'],55000,'sports'],
+  ['Ford','Mustang',['mustang','sports car','coupe'],42000,'coupe'],
+  ['Ford','F-150',['f-150','f150','pickup','truck'],55000,'pickup'],
+  ['Ford','Focus',['focus','hatchback','sedan'],25000,'hatchback'],
+  ['Ford','Fiesta',['fiesta','hatchback','compact'],20000,'hatchback'],
+  ['Ford','Explorer',['explorer','suv','family'],52000,'suv'],
+  ['Ford','Escape',['escape','suv','crossover'],35000,'suv'],
+  ['Ford','Bronco',['bronco','suv','off-road'],45000,'suv'],
+  ['Ford','GT',['gt','supercar','sports car'],500000,'supercar'],
+  ['Ford','Fusion',['fusion','sedan','family'],28000,'sedan'],
+  ['Ford','Edge',['edge','suv','crossover'],42000,'suv'],
+  ['Ford','Maverick',['maverick','pickup','compact'],30000,'pickup'],
+  ['Ford','Ranger',['ranger','pickup','truck'],38000,'pickup'],
+  ['Chevrolet','Camaro',['camaro','sports car','muscle car'],42000,'muscle'],
+  ['Chevrolet','Corvette',['corvette','sports car','supercar'],75000,'supercar'],
+  ['Chevrolet','Silverado',['silverado','pickup','truck'],48000,'pickup'],
+  ['Chevrolet','Malibu',['malibu','sedan','family'],28000,'sedan'],
+  ['Chevrolet','Impala',['impala','sedan','family'],32000,'sedan'],
+  ['Chevrolet','Tahoe',['tahoe','suv','family'],58000,'suv'],
+  ['Chevrolet','Suburban',['suburban','suv','family'],62000,'suv'],
+  ['Chevrolet','Equinox',['equinox','suv','crossover'],32000,'suv'],
+  ['Chevrolet','Bolt',['bolt','electric','hatchback'],32000,'electric'],
+  ['Chevrolet','Blazer',['blazer','suv','crossover'],42000,'suv'],
+  ['Chevrolet','Trailblazer',['trailblazer','suv','compact'],28000,'suv'],
+  ['Nissan','GT-R',['gt-r','gtr','sports car','supercar'],115000,'supercar'],
+  ['Nissan','370Z',['370z','sports car','coupe'],42000,'coupe'],
+  ['Nissan','Altima',['altima','sedan','family'],28000,'sedan'],
+  ['Nissan','Maxima',['maxima','sedan','luxury'],42000,'luxury'],
+  ['Nissan','Sentra',['sentra','sedan','compact'],22000,'sedan'],
+  ['Nissan','Rogue',['rogue','suv','crossover'],32000,'suv'],
+  ['Nissan','Pathfinder',['pathfinder','suv','family'],42000,'suv'],
+  ['Nissan','Leaf',['leaf','electric','hatchback'],32000,'electric'],
+  ['Nissan','Frontier',['frontier','pickup','truck'],35000,'pickup'],
+  ['Nissan','Titan',['titan','pickup','truck'],45000,'pickup'],
+  ['Nissan','Juke',['juke','suv','compact'],25000,'suv'],
+  ['Nissan','Murano',['murano','suv','crossover'],38000,'suv'],
+  ['Porsche','911',['911','carrera','sports car'],115000,'sports'],
+  ['Porsche','Cayenne',['cayenne','suv','luxury'],85000,'suv'],
+  ['Porsche','Macan',['macan','suv','crossover'],68000,'suv'],
+  ['Porsche','Panamera',['panamera','sedan','luxury'],95000,'luxury'],
+  ['Porsche','Taycan',['taycan','electric','sedan'],90000,'electric'],
+  ['Porsche','Boxster',['boxster','roadster','convertible'],68000,'roadster'],
+  ['Porsche','Cayman',['cayman','coupe','sports car'],72000,'coupe'],
+  ['Porsche','718',['718','sports car','coupe'],75000,'coupe'],
+  ['Volkswagen','Golf',['golf','hatchback','gti'],32000,'hatchback'],
+  ['Volkswagen','Passat',['passat','sedan','family'],32000,'sedan'],
+  ['Volkswagen','Jetta',['jetta','sedan','compact'],25000,'sedan'],
+  ['Volkswagen','Tiguan',['tiguan','suv','crossover'],35000,'suv'],
+  ['Volkswagen','Touareg',['touareg','suv','luxury'],58000,'suv'],
+  ['Volkswagen','Polo',['polo','hatchback','compact'],22000,'hatchback'],
+  ['Volkswagen','Beetle',['beetle','hatchback','classic'],25000,'classic'],
+  ['Volkswagen','Arteon',['arteon','sedan','coupe'],45000,'coupe'],
+  ['Volkswagen','ID.4',['id.4','electric','suv'],45000,'electric'],
+  ['Volkswagen','Atlas',['atlas','suv','family'],42000,'suv'],
+  ['Tesla','Model 3',['model 3','sedan','electric'],42000,'electric'],
+  ['Tesla','Model Y',['model y','suv','electric'],52000,'electric'],
+  ['Tesla','Model S',['model s','sedan','electric'],85000,'electric'],
+  ['Tesla','Model X',['model x','suv','electric'],95000,'electric'],
+  ['Tesla','Cybertruck',['cybertruck','pickup','electric'],80000,'electric'],
+  ['Tesla','Roadster',['roadster','sports car','electric'],200000,'electric'],
+  ['Ferrari','488',['488','f8','supercar','sports car'],280000,'supercar'],
+  ['Ferrari','F8 Tributo',['f8','tributo','supercar'],280000,'supercar'],
+  ['Ferrari','SF90',['sf90','hybrid','supercar'],520000,'hybrid'],
+  ['Ferrari','Roma',['roma','coupe','luxury'],245000,'coupe'],
+  ['Ferrari','Portofino',['portofino','convertible','luxury'],220000,'convertible'],
+  ['Ferrari','812',['812','superfast','supercar'],340000,'supercar'],
+  ['Ferrari','LaFerrari',['laferrari','hypercar','supercar'],1500000,'hypercar'],
+  ['Ferrari','California',['california','convertible','luxury'],200000,'convertible'],
+  ['Ferrari','458',['458','italia','supercar'],250000,'supercar'],
+  ['Ferrari','F40',['f40','classic','supercar'],2000000,'classic'],
+  ['Ferrari','Enzo',['enzo','hypercar','supercar'],3000000,'hypercar'],
+  ['Lamborghini','Huracán',['huracan','supercar','sports car'],245000,'supercar'],
+  ['Lamborghini','Aventador',['aventador','supercar','v12'],420000,'supercar'],
+  ['Lamborghini','Urus',['urus','suv','supercar'],230000,'suv'],
+  ['Lamborghini','Gallardo',['gallardo','supercar','classic'],180000,'classic'],
+  ['Lamborghini','Murciélago',['murcielago','supercar','v12'],350000,'supercar'],
+  ['Lamborghini','Diablo',['diablo','supercar','classic'],400000,'classic'],
+  ['Lamborghini','Countach',['countach','supercar','classic'],500000,'classic'],
+  ['Lamborghini','Revuelto',['revuelto','supercar','hybrid'],600000,'hybrid'],
+  ['Dodge','Challenger',['challenger','muscle car','coupe'],45000,'muscle'],
+  ['Dodge','Charger',['charger','sedan','muscle car'],42000,'muscle'],
+  ['Dodge','Viper',['viper','supercar','sports car'],120000,'supercar'],
+  ['Dodge','Durango',['durango','suv','family'],48000,'suv'],
+  ['Dodge','Ram',['ram','pickup','truck'],55000,'pickup'],
+  ['Dodge','Demon',['demon','muscle car','challenger'],85000,'muscle'],
+  ['Dodge','Hellcat',['hellcat','muscle car','charger'],75000,'muscle'],
+  ['Jeep','Wrangler',['wrangler','suv','off-road'],48000,'off-road'],
+  ['Jeep','Cherokee',['cherokee','suv','crossover'],38000,'suv'],
+  ['Jeep','Grand Cherokee',['grand cherokee','suv','luxury'],52000,'suv'],
+  ['Jeep','Gladiator',['gladiator','pickup','off-road'],52000,'pickup'],
+  ['Jeep','Compass',['compass','suv','compact'],32000,'suv'],
+  ['Jeep','Renegade',['renegade','suv','compact'],28000,'suv'],
+  ['Land Rover','Range Rover',['range rover','suv','luxury'],115000,'luxury'],
+  ['Land Rover','Defender',['defender','suv','off-road'],75000,'off-road'],
+  ['Land Rover','Discovery',['discovery','suv','family'],68000,'suv'],
+  ['Land Rover','Evoque',['evoque','suv','compact'],52000,'suv'],
+  ['Land Rover','Velar',['velar','suv','coupe'],72000,'suv'],
+  ['Land Rover','Sport',['sport','suv','luxury'],88000,'suv'],
+  ['Hyundai','Sonata',['sonata','sedan','family'],28000,'sedan'],
+  ['Hyundai','Elantra',['elantra','sedan','compact'],22000,'sedan'],
+  ['Hyundai','Tucson',['tucson','suv','crossover'],32000,'suv'],
+  ['Hyundai','Santa Fe',['santa fe','suv','family'],38000,'suv'],
+  ['Hyundai','Palisade',['palisade','suv','luxury'],48000,'suv'],
+  ['Hyundai','Kona',['kona','suv','compact'],25000,'suv'],
+  ['Hyundai','Ioniq 5',['ioniq','electric','suv'],45000,'electric'],
+  ['Hyundai','Veloster',['veloster','hatchback','coupe'],25000,'coupe'],
+  ['Hyundai','Accent',['accent','sedan','compact'],18000,'sedan'],
+  ['Hyundai','Genesis',['genesis','sedan','luxury'],55000,'luxury'],
+  ['Kia','K5',['k5','optima','sedan'],28000,'sedan'],
+  ['Kia','Sorento',['sorento','suv','family'],35000,'suv'],
+  ['Kia','Sportage',['sportage','suv','crossover'],32000,'suv'],
+  ['Kia','Telluride',['telluride','suv','luxury'],48000,'suv'],
+  ['Kia','Stinger',['stinger','sedan','sports car'],42000,'sports'],
+  ['Kia','Soul',['soul','hatchback','compact'],22000,'hatchback'],
+  ['Kia','Rio',['rio','sedan','compact'],18000,'sedan'],
+  ['Kia','Forte',['forte','sedan','compact'],22000,'sedan'],
+  ['Kia','EV6',['ev6','electric','suv'],52000,'electric'],
+  ['Mazda','Mazda3',['mazda3','sedan','hatchback'],26000,'hatchback'],
+  ['Mazda','Mazda6',['mazda6','sedan','family'],32000,'sedan'],
+  ['Mazda','MX-5',['mx-5','miata','roadster'],30000,'roadster'],
+  ['Mazda','CX-5',['cx-5','suv','crossover'],32000,'suv'],
+  ['Mazda','CX-9',['cx-9','suv','family'],42000,'suv'],
+  ['Mazda','RX-7',['rx-7','sports car','rotary'],45000,'sports'],
+  ['Mazda','RX-8',['rx-8','sports car','rotary'],35000,'sports'],
+  ['Mazda','CX-30',['cx-30','suv','compact'],28000,'suv'],
+  ['Mazda','CX-50',['cx-50','suv','crossover'],35000,'suv'],
+  ['Subaru','WRX',['wrx','sedan','sports car'],32000,'sports'],
+  ['Subaru','Impreza',['impreza','sedan','hatchback'],25000,'hatchback'],
+  ['Subaru','Outback',['outback','wagon','suv'],32000,'wagon'],
+  ['Subaru','Forester',['forester','suv','crossover'],32000,'suv'],
+  ['Subaru','BRZ',['brz','coupe','sports car'],30000,'coupe'],
+  ['Subaru','Legacy',['legacy','sedan','family'],28000,'sedan'],
+  ['Subaru','Crosstrek',['crosstrek','suv','compact'],28000,'suv'],
+  ['Subaru','Ascent',['ascent','suv','family'],42000,'suv'],
+  ['Lexus','IS',['is','sedan','sports car'],42000,'sports'],
+  ['Lexus','ES',['es','sedan','luxury'],48000,'luxury'],
+  ['Lexus','GS',['gs','sedan','luxury'],52000,'luxury'],
+  ['Lexus','LS',['ls','sedan','luxury'],82000,'luxury'],
+  ['Lexus','RX',['rx','suv','luxury'],55000,'suv'],
+  ['Lexus','NX',['nx','suv','crossover'],45000,'suv'],
+  ['Lexus','GX',['gx','suv','off-road'],62000,'suv'],
+  ['Lexus','LX',['lx','suv','luxury'],92000,'suv'],
+  ['Lexus','LC',['lc','coupe','luxury'],95000,'coupe'],
+  ['Lexus','RC',['rc','coupe','sports car'],48000,'coupe'],
+  ['Acura','TLX',['tlx','sedan','sports car'],42000,'sports'],
+  ['Acura','RLX',['rlx','sedan','luxury'],55000,'luxury'],
+  ['Acura','MDX',['mdx','suv','family'],55000,'suv'],
+  ['Acura','RDX',['rdx','suv','crossover'],45000,'suv'],
+  ['Acura','NSX',['nsx','supercar','hybrid'],160000,'supercar'],
+  ['Acura','Integra',['integra','sedan','sports car'],35000,'sports'],
+  ['Infiniti','Q50',['q50','sedan','sports car'],42000,'sports'],
+  ['Infiniti','Q60',['q60','coupe','sports car'],48000,'coupe'],
+  ['Infiniti','Q70',['q70','sedan','luxury'],55000,'luxury'],
+  ['Infiniti','QX50',['qx50','suv','crossover'],45000,'suv'],
+  ['Infiniti','QX60',['qx60','suv','family'],55000,'suv'],
+  ['Infiniti','QX80',['qx80','suv','luxury'],75000,'suv'],
+  ['Volvo','XC90',['xc90','suv','luxury'],62000,'suv'],
+  ['Volvo','XC60',['xc60','suv','crossover'],52000,'suv'],
+  ['Volvo','XC40',['xc40','suv','compact'],42000,'suv'],
+  ['Volvo','S90',['s90','sedan','luxury'],58000,'luxury'],
+  ['Volvo','S60',['s60','sedan','sports car'],45000,'sports'],
+  ['Volvo','V90',['v90','wagon','luxury'],58000,'wagon'],
+  ['Volvo','C40',['c40','electric','suv'],55000,'electric'],
+  ['Jaguar','F-Type',['f-type','sports car','coupe'],75000,'coupe'],
+  ['Jaguar','XE',['xe','sedan','sports car'],45000,'sports'],
+  ['Jaguar','XF',['xf','sedan','luxury'],55000,'luxury'],
+  ['Jaguar','XJ',['xj','sedan','luxury'],85000,'luxury'],
+  ['Jaguar','F-Pace',['f-pace','suv','crossover'],58000,'suv'],
+  ['Jaguar','E-Pace',['e-pace','suv','compact'],48000,'suv'],
+  ['Jaguar','I-Pace',['i-pace','electric','suv'],72000,'electric'],
+  ['Bentley','Continental GT',['continental','gt','coupe'],220000,'coupe'],
+  ['Bentley','Flying Spur',['flying spur','sedan','luxury'],215000,'luxury'],
+  ['Bentley','Bentayga',['bentayga','suv','luxury'],195000,'suv'],
+  ['Bentley','Mulsanne',['mulsanne','sedan','luxury'],310000,'luxury'],
+  ['Rolls-Royce','Phantom',['phantom','sedan','luxury'],460000,'luxury'],
+  ['Rolls-Royce','Ghost',['ghost','sedan','luxury'],350000,'luxury'],
+  ['Rolls-Royce','Cullinan',['cullinan','suv','luxury'],340000,'suv'],
+  ['Rolls-Royce','Wraith',['wraith','coupe','luxury'],330000,'coupe'],
+  ['Rolls-Royce','Dawn',['dawn','convertible','luxury'],350000,'convertible'],
+  ['Aston Martin','DB11',['db11','coupe','luxury'],210000,'coupe'],
+  ['Aston Martin','DBS',['dbs','coupe','supercar'],320000,'supercar'],
+  ['Aston Martin','Vantage',['vantage','coupe','sports car'],150000,'sports'],
+  ['Aston Martin','DBX',['dbx','suv','luxury'],190000,'suv'],
+  ['Aston Martin','Valkyrie',['valkyrie','hypercar','supercar'],3200000,'hypercar'],
+  ['Aston Martin','Rapide',['rapide','sedan','luxury'],210000,'luxury'],
+  ['McLaren','720S',['720s','supercar','sports car'],300000,'supercar'],
+  ['McLaren','570S',['570s','supercar','sports car'],210000,'supercar'],
+  ['McLaren','600LT',['600lt','supercar','sports car'],250000,'supercar'],
+  ['McLaren','765LT',['765lt','supercar','sports car'],360000,'supercar'],
+  ['McLaren','P1',['p1','hypercar','hybrid'],1400000,'hypercar'],
+  ['McLaren','Artura',['artura','hybrid','supercar'],235000,'hybrid'],
+  ['McLaren','GT',['gt','coupe','luxury'],215000,'coupe'],
+  ['Bugatti','Chiron',['chiron','hypercar','supercar'],3000000,'hypercar'],
+  ['Bugatti','Veyron',['veyron','hypercar','supercar'],2000000,'hypercar'],
+  ['Bugatti','Divo',['divo','hypercar','supercar'],5800000,'hypercar'],
+  ['Bugatti','Bolide',['bolide','hypercar','track'],4700000,'hypercar'],
+  ['Maserati','Ghibli',['ghibli','sedan','luxury'],82000,'luxury'],
+  ['Maserati','Quattroporte',['quattroporte','sedan','luxury'],105000,'luxury'],
+  ['Maserati','Levante',['levante','suv','luxury'],92000,'suv'],
+  ['Maserati','MC20',['mc20','supercar','sports car'],220000,'supercar'],
+  ['Maserati','GranTurismo',['granturismo','coupe','luxury'],150000,'coupe'],
+  ['Alfa Romeo','Giulia',['giulia','sedan','sports car'],48000,'sports'],
+  ['Alfa Romeo','Stelvio',['stelvio','suv','crossover'],52000,'suv'],
+  ['Alfa Romeo','4C',['4c','coupe','sports car'],68000,'coupe'],
+  ['Alfa Romeo','Giulietta',['giulietta','hatchback','compact'],32000,'hatchback'],
+  ['Fiat','500',['500','cinquecento','hatchback'],22000,'hatchback'],
+  ['Fiat','Panda',['panda','hatchback','compact'],18000,'hatchback'],
+  ['Fiat','Tipo',['tipo','sedan','hatchback'],20000,'hatchback'],
+  ['Fiat','124 Spider',['124','spider','roadster'],28000,'roadster'],
+  ['Peugeot','208',['208','hatchback','compact'],22000,'hatchback'],
+  ['Peugeot','308',['308','hatchback','family'],28000,'hatchback'],
+  ['Peugeot','508',['508','sedan','wagon'],35000,'sedan'],
+  ['Peugeot','2008',['2008','suv','compact'],28000,'suv'],
+  ['Peugeot','3008',['3008','suv','crossover'],35000,'suv'],
+  ['Peugeot','5008',['5008','suv','family'],42000,'suv'],
+  ['Renault','Clio',['clio','hatchback','compact'],20000,'hatchback'],
+  ['Renault','Megane',['megane','hatchback','family'],28000,'hatchback'],
+  ['Renault','Captur',['captur','suv','compact'],25000,'suv'],
+  ['Renault','Kadjar',['kadjar','suv','crossover'],32000,'suv'],
+  ['Renault','Zoe',['zoe','electric','hatchback'],32000,'electric'],
+  ['Renault','Talisman',['talisman','sedan','wagon'],35000,'wagon'],
+  ['Citroen','C3',['c3','hatchback','compact'],20000,'hatchback'],
+  ['Citroen','C4',['c4','hatchback','family'],25000,'hatchback'],
+  ['Citroen','C5',['c5','sedan','wagon'],32000,'sedan'],
+  ['Citroen','Berlingo',['berlingo','van','family'],28000,'van'],
+  ['Citroen','DS3',['ds3','hatchback','premium'],25000,'hatchback'],
+  ['Opel','Corsa',['corsa','hatchback','compact'],20000,'hatchback'],
+  ['Opel','Astra',['astra','hatchback','family'],25000,'hatchback'],
+  ['Opel','Insignia',['insignia','sedan','wagon'],32000,'sedan'],
+  ['Opel','Mokka',['mokka','suv','compact'],28000,'suv'],
+  ['Opel','Grandland',['grandland','suv','crossover'],35000,'suv'],
+  ['Skoda','Octavia',['octavia','sedan','wagon'],28000,'sedan'],
+  ['Skoda','Superb',['superb','sedan','wagon'],35000,'sedan'],
+  ['Skoda','Fabia',['fabia','hatchback','compact'],18000,'hatchback'],
+  ['Skoda','Kodiaq',['kodiaq','suv','family'],38000,'suv'],
+  ['Skoda','Karoq',['karoq','suv','compact'],32000,'suv'],
+  ['Skoda','Scala',['scala','hatchback','family'],25000,'hatchback'],
+  ['Seat','Leon',['leon','hatchback','family'],28000,'hatchback'],
+  ['Seat','Ibiza',['ibiza','hatchback','compact'],20000,'hatchback'],
+  ['Seat','Ateca',['ateca','suv','crossover'],32000,'suv'],
+  ['Seat','Arona',['arona','suv','compact'],25000,'suv'],
+  ['Seat','Tarraco',['tarraco','suv','family'],38000,'suv'],
+  ['MINI','Cooper',['mini','cooper','hatchback'],28000,'hatchback'],
+  ['MINI','Countryman',['countryman','suv','compact'],35000,'suv'],
+  ['MINI','Clubman',['clubman','wagon','hatchback'],32000,'wagon'],
+  ['MINI','Cabrio',['cabrio','convertible','hatchback'],32000,'convertible'],
+  ['Smart','Fortwo',['fortwo','micro','city'],18000,'compact'],
+  ['Smart','Forfour',['forfour','hatchback','city'],22000,'hatchback'],
+  ['Suzuki','Swift',['swift','hatchback','compact'],18000,'hatchback'],
+  ['Suzuki','Vitara',['vitara','suv','compact'],25000,'suv'],
+  ['Suzuki','Jimny',['jimny','suv','off-road'],28000,'off-road'],
+  ['Suzuki','SX4',['sx4','hatchback','crossover'],22000,'hatchback'],
+  ['Suzuki','Baleno',['baleno','hatchback','compact'],18000,'hatchback'],
+  ['Suzuki','Ignis',['ignis','hatchback','compact'],16000,'hatchback'],
+  ['Mitsubishi','Outlander',['outlander','suv','family'],32000,'suv'],
+  ['Mitsubishi','Lancer',['lancer','sedan','compact'],22000,'sedan'],
+  ['Mitsubishi','Pajero',['pajero','suv','off-road'],42000,'off-road'],
+  ['Mitsubishi','Eclipse',['eclipse','coupe','sports car'],28000,'coupe'],
+  ['Mitsubishi','ASX',['asx','suv','compact'],25000,'suv'],
+  ['Mitsubishi','L200',['l200','pickup','truck'],32000,'pickup'],
+  ['Isuzu','D-Max',['d-max','pickup','truck'],32000,'pickup'],
+  ['Isuzu','MU-X',['mu-x','suv','family'],38000,'suv'],
+  ['Isuzu','Trooper',['trooper','suv','off-road'],28000,'off-road'],
+  ['Daihatsu','Terios',['terios','suv','compact'],22000,'suv'],
+  ['Daihatsu','Sirion',['sirion','hatchback','compact'],16000,'hatchback'],
+  ['Daihatsu','Copen',['copen','roadster','convertible'],25000,'roadster'],
+  ['Lada','Vesta',['vesta','sedan','russian'],12000,'sedan'],
+  ['Lada','Granta',['granta','sedan','compact'],10000,'sedan'],
+  ['Lada','Niva',['niva','suv','off-road'],12000,'off-road'],
+  ['Lada','XRAY',['xray','hatchback','crossover'],12000,'hatchback'],
+  ['Lada','Largus',['largus','wagon','van'],11000,'wagon'],
+  ['Lada','Priora',['priora','sedan','compact'],9000,'sedan'],
+  ['UAZ','Patriot',['patriot','suv','off-road'],15000,'off-road'],
+  ['UAZ','Hunter',['hunter','suv','off-road'],12000,'off-road'],
+  ['UAZ','Bukhanka',['bukhanka','van','off-road'],10000,'van'],
+  ['GAZ','Gazelle',['gazelle','van','truck'],15000,'van'],
+  ['GAZ','Volga',['volga','sedan','classic'],8000,'classic'],
+  ['GAZ','Sobol',['sobol','van','truck'],14000,'van'],
+  ['Moskvich','3',['moskvich 3','sedan','russian'],15000,'sedan'],
+  ['Moskvich','412',['412','sedan','classic'],5000,'classic'],
+  ['Moskvich','2141',['2141','hatchback','classic'],4000,'classic'],
+  ['ZAZ','Zaporozhets',['zaporozhets','classic','compact'],3000,'classic'],
+  ['ZAZ','Tavria',['tavria','hatchback','compact'],4000,'hatchback'],
+  ['ZAZ','Slavuta',['slavuta','hatchback','compact'],4500,'hatchback'],
+  ['Cadillac','Escalade',['escalade','suv','luxury'],85000,'suv'],
+  ['Cadillac','CT5',['ct5','sedan','luxury'],48000,'luxury'],
+  ['Cadillac','CT4',['ct4','sedan','sports car'],42000,'sports'],
+  ['Cadillac','XT5',['xt5','suv','crossover'],52000,'suv'],
+  ['Cadillac','XT6',['xt6','suv','family'],62000,'suv'],
+  ['Cadillac','CTS',['cts','sedan','luxury'],45000,'luxury'],
+  ['Cadillac','ATS',['ats','sedan','sports car'],42000,'sports'],
+  ['Lincoln','Navigator',['navigator','suv','luxury'],82000,'suv'],
+  ['Lincoln','Aviator',['aviator','suv','luxury'],68000,'suv'],
+  ['Lincoln','Corsair',['corsair','suv','compact'],48000,'suv'],
+  ['Lincoln','Nautilus',['nautilus','suv','crossover'],55000,'suv'],
+  ['Buick','Enclave',['enclave','suv','family'],52000,'suv'],
+  ['Buick','Encore',['encore','suv','compact'],28000,'suv'],
+  ['Buick','Regal',['regal','sedan','family'],32000,'sedan'],
+  ['Buick','LaCrosse',['lacrosse','sedan','luxury'],38000,'luxury'],
+  ['GMC','Sierra',['sierra','pickup','truck'],48000,'pickup'],
+  ['GMC','Yukon',['yukon','suv','family'],62000,'suv'],
+  ['GMC','Terrain',['terrain','suv','crossover'],35000,'suv'],
+  ['GMC','Acadia',['acadia','suv','family'],45000,'suv'],
+  ['GMC','Canyon',['canyon','pickup','truck'],38000,'pickup'],
+  ['Chrysler','300',['300','sedan','luxury'],38000,'luxury'],
+  ['Chrysler','Pacifica',['pacifica','minivan','family'],42000,'minivan'],
+  ['Chrysler','Voyager',['voyager','minivan','family'],35000,'minivan'],
+  ['Ram','1500',['1500','pickup','truck'],55000,'pickup'],
+  ['Ram','2500',['2500','pickup','truck'],62000,'pickup'],
+  ['Ram','ProMaster',['promaster','van','truck'],38000,'van'],
+  ['Genesis','G70',['g70','sedan','sports car'],45000,'sports'],
+  ['Genesis','G80',['g80','sedan','luxury'],58000,'luxury'],
+  ['Genesis','G90',['g90','sedan','luxury'],82000,'luxury'],
+  ['Genesis','GV70',['gv70','suv','crossover'],52000,'suv'],
+  ['Genesis','GV80',['gv80','suv','luxury'],65000,'suv'],
+  ['Polestar','1',['polestar 1','coupe','electric'],155000,'electric'],
+  ['Polestar','2',['polestar 2','sedan','electric'],50000,'electric'],
+  ['Polestar','3',['polestar 3','suv','electric'],85000,'electric'],
+  ['Polestar','4',['polestar 4','suv','electric'],65000,'electric'],
+  ['Rivian','R1T',['r1t','pickup','electric'],75000,'electric'],
+  ['Rivian','R1S',['r1s','suv','electric'],78000,'electric'],
+  ['Lucid','Air',['air','sedan','electric'],88000,'electric'],
+  ['Lucid','Gravity',['gravity','suv','electric'],95000,'electric'],
+  ['Fisker','Ocean',['ocean','suv','electric'],38000,'electric'],
+  ['Fisker','Karma',['karma','sedan','hybrid'],135000,'hybrid'],
+  ['Koenigsegg','Jesko',['jesko','hypercar','supercar'],3000000,'hypercar'],
+  ['Koenigsegg','Agera',['agera','hypercar','supercar'],2500000,'hypercar'],
+  ['Koenigsegg','Regera',['regera','hypercar','hybrid'],2000000,'hypercar'],
+  ['Koenigsegg','Gemera',['gemera','hypercar','hybrid'],1700000,'hypercar'],
+  ['Pagani','Huayra',['huayra','hypercar','supercar'],2800000,'hypercar'],
+  ['Pagani','Zonda',['zonda','hypercar','supercar'],2000000,'hypercar'],
+  ['Pagani','Utopia',['utopia','hypercar','supercar'],3400000,'hypercar'],
+  ['Rimac','Nevera',['nevera','hypercar','electric'],2400000,'hypercar'],
+  ['Rimac','C_Two',['c_two','hypercar','electric'],2000000,'hypercar'],
+  ['Lotus','Emira',['emira','coupe','sports car'],85000,'coupe'],
+  ['Lotus','Evija',['evija','hypercar','electric'],2200000,'hypercar'],
+  ['Lotus','Elise',['elise','roadster','sports car'],55000,'roadster'],
+  ['Lotus','Exige',['exige','coupe','sports car'],75000,'coupe'],
+  ['Lotus','Europa',['europa','coupe','classic'],45000,'classic'],
+  ['Alpine','A110',['a110','coupe','sports car'],68000,'coupe'],
+  ['Alpine','A110S',['a110s','coupe','sports car'],78000,'coupe'],
+  ['Dacia','Sandero',['sandero','hatchback','compact'],12000,'hatchback'],
+  ['Dacia','Duster',['duster','suv','compact'],18000,'suv'],
+  ['Dacia','Logan',['logan','sedan','compact'],10000,'sedan'],
+  ['Dacia','Spring',['spring','electric','compact'],22000,'electric'],
+  ['Proton','Saga',['saga','sedan','compact'],12000,'sedan'],
+  ['Proton','Persona',['persona','sedan','compact'],15000,'sedan'],
+  ['Proton','X70',['x70','suv','crossover'],25000,'suv'],
+  ['Perodua','Myvi',['myvi','hatchback','compact'],12000,'hatchback'],
+  ['Perodua','Axia',['axia','hatchback','compact'],10000,'hatchback'],
+  ['Perodua','Bezza',['bezza','sedan','compact'],12000,'sedan'],
+  ['Tata','Nexon',['nexon','suv','compact'],12000,'suv'],
+  ['Tata','Harrier',['harrier','suv','family'],18000,'suv'],
+  ['Tata','Safari',['safari','suv','family'],20000,'suv'],
+  ['Tata','Punch',['punch','suv','compact'],10000,'suv'],
+  ['Tata','Altroz',['altroz','hatchback','compact'],10000,'hatchback'],
+  ['Mahindra','Thar',['thar','suv','off-road'],15000,'off-road'],
+  ['Mahindra','XUV700',['xuv700','suv','family'],22000,'suv'],
+  ['Mahindra','Scorpio',['scorpio','suv','family'],18000,'suv'],
+  ['Mahindra','Bolero',['bolero','suv','off-road'],12000,'off-road'],
+  ['Maruti','Swift',['swift','hatchback','compact'],8000,'hatchback'],
+  ['Maruti','Dzire',['dzire','sedan','compact'],10000,'sedan'],
+  ['Maruti','Baleno',['baleno','hatchback','compact'],9000,'hatchback'],
+  ['Maruti','Alto',['alto','hatchback','compact'],7000,'hatchback'],
+  ['Maruti','Brezza',['brezza','suv','compact'],12000,'suv'],
+  ['BYD','Han',['han','sedan','electric'],35000,'electric'],
+  ['BYD','Tang',['tang','suv','electric'],42000,'electric'],
+  ['BYD','Song',['song','suv','electric'],28000,'electric'],
+  ['BYD','Seal',['seal','sedan','electric'],32000,'electric'],
+  ['BYD','Atto 3',['atto','suv','electric'],35000,'electric'],
+  ['BYD','Dolphin',['dolphin','hatchback','electric'],25000,'electric'],
+  ['Geely','Emgrand',['emgrand','sedan','compact'],15000,'sedan'],
+  ['Geely','Coolray',['coolray','suv','compact'],18000,'suv'],
+  ['Geely','Atlas',['atlas','suv','crossover'],22000,'suv'],
+  ['Geely','Tugella',['tugella','suv','coupe'],28000,'suv'],
+  ['Geely','Monjaro',['monjaro','suv','luxury'],35000,'suv'],
+  ['Chery','Tiggo 7',['tiggo 7','suv','compact'],18000,'suv'],
+  ['Chery','Tiggo 8',['tiggo 8','suv','family'],22000,'suv'],
+  ['Chery','Arrizo',['arrizo','sedan','compact'],15000,'sedan'],
+  ['Chery','Omoda',['omoda','suv','crossover'],20000,'suv'],
+  ['Haval','Jolion',['jolion','suv','compact'],18000,'suv'],
+  ['Haval','F7',['f7','suv','crossover'],22000,'suv'],
+  ['Haval','H9',['h9','suv','off-road'],32000,'suv'],
+  ['Haval','Dargo',['dargo','suv','off-road'],25000,'suv'],
+  ['Haval','M6',['m6','suv','compact'],18000,'suv'],
+  ['Great Wall','Poer',['poer','pickup','truck'],25000,'pickup'],
+  ['Great Wall','Wingle',['wingle','pickup','truck'],20000,'pickup'],
+  ['Great Wall','Tank 300',['tank 300','suv','off-road'],28000,'suv'],
+  ['Great Wall','Tank 500',['tank 500','suv','luxury'],42000,'suv'],
+  ['Exeed','TXL',['txl','suv','crossover'],28000,'suv'],
+  ['Exeed','VX',['vx','suv','luxury'],35000,'suv'],
+  ['Exeed','LX',['lx','suv','compact'],25000,'suv']
 ];
 
-carData.forEach(c=>addCar(c[0],c[1],c[2],c[3]));
+carData.forEach(c=>addCar(c[0],c[1],c[2],c[3],c[4]));
 console.log(`База загружена: ${DB.length} автомобилей`);
+
+// ==================== КЭШ РЕЗУЛЬТАТОВ ====================
+const cache=new Map();
+const CACHE_KEY='waink_cache';
+
+function saveCache(){
+  try{
+    const obj={};
+    cache.forEach((v,k)=>obj[k]=v);
+    localStorage.setItem(CACHE_KEY,JSON.stringify(obj));
+  }catch(e){console.warn('Не удалось сохранить кэш')}
+}
+
+function loadCache(){
+  try{
+    const raw=localStorage.getItem(CACHE_KEY);
+    if(raw){
+      const obj=JSON.parse(raw);
+      Object.keys(obj).forEach(k=>cache.set(k,obj[k]));
+      console.log(`Кэш загружен: ${cache.size} записей`);
+    }
+  }catch(e){console.warn('Не удалось загрузить кэш')}
+}
+loadCache();
+
+// ==================== ИСТОРИЯ СКАНИРОВАНИЙ ====================
+const HISTORY_KEY='waink_history';
+let history=[];
+
+function loadHistory(){
+  try{
+    const raw=localStorage.getItem(HISTORY_KEY);
+    if(raw)history=JSON.parse(raw);
+  }catch(e){history=[]}
+}
+loadHistory();
+
+function addToHistory(make,model,score){
+  history.unshift({
+    make,model,score,
+    time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})
+  });
+  history=history.slice(0,10); // Храним последние 10
+  try{
+    localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+  }catch(e){}
+}
+
+function displayHistory(){
+  const panel=$('#historyPanel');
+  const list=$('#historyList');
+  if(history.length===0){
+    list.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px">История пуста</div>';
+  }else{
+    list.innerHTML=history.map(h=>
+      `<div class="history-item">
+        <span>${h.make} ${h.model}</span>
+        <span class="time">${h.time} · ${h.score.toFixed(0)}%</span>
+      </div>`
+    ).join('');
+  }
+  panel.classList.toggle('show');
+}
 
 // ==================== DOM ====================
 const $=s=>document.querySelector(s);
 const splash=$('#splash'),loadBar=$('#loadBar'),loadStatus=$('#loadStatus'),btnStartCam=$('#btnStartCam');
 const video=$('#video'),placeholder=$('#placeholder'),statusBar=$('#statusBar'),statusText=$('#statusText');
-const btnScan=$('#btnScan'),btnFlip=$('#btnFlip'),btnSound=$('#btnSound');
+const btnScan=$('#btnScan'),btnFlip=$('#btnFlip'),btnSound=$('#btnSound'),btnHistory=$('#btnHistory');
 const resultPanel=$('#resultPanel'),aiRaw=$('#aiRaw'),matchedBox=$('#matchedBox'),matchesEl=$('#matches');
 const resultActions=$('#resultActions'),savedEl=$('#saved'),moneyEl=$('#money');
 const camWrap=$('#camWrap'),scanCounter=$('#scanCounter'),frameCounter=$('#frameCounter');
-const nhtsaInfo=$('#nhtsaInfo'),nhtsaGrid=$('#nhtsaGrid');
+const extendedInfo=$('#extendedInfo'),extendedGrid=$('#extendedGrid');
 
 let classifier=null,stream=null,facingMode='environment';
 let money=parseInt(localStorage.getItem('waink_money')||'0');
@@ -750,6 +968,7 @@ moneyEl.textContent='$ '+money.toLocaleString('ru-RU');
 scanCounter.textContent=`Сканирований: ${scans}`;
 
 btnSound.addEventListener('click',()=>{sfx.enabled=!sfx.enabled;btnSound.textContent=sfx.enabled?'🔊':'🔇';if(sfx.enabled)sfx.click()});
+btnHistory.addEventListener('click',()=>{sfx.click();displayHistory()});
 
 // ==================== ЗАГРУЗКА МОДЕЛИ ====================
 async function loadModel(){
@@ -823,7 +1042,7 @@ function captureFrame(){
   });
 }
 
-// ==================== МНОЖЕСТВЕННЫЙ АНАЛИЗ (3 КАДРА) ====================
+// ==================== МНОЖЕСТВЕННЫЙ АНАЛИЗ ====================
 async function multiScan(){
   const results=[];
   const frameCount=3;
@@ -861,45 +1080,63 @@ async function multiScan(){
   return averaged;
 }
 
-// ==================== NHTSA API (с таймаутом 5 сек) ====================
-async function fetchNHTSA(make){
+// ==================== WIKIDATA API (бесплатно) ====================
+async function fetchWikidata(make){
   try{
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),5000);
     
-    const url=`https://vpic.nhtsa.dot.gov/api/vehicles/getmodelsformake/${encodeURIComponent(make)}?format=json`;
+    const query=`SELECT ?item ?itemLabel ?countryLabel ?founded WHERE {
+      ?item wdt:P31 wd:Q1123336 .
+      ?item rdfs:label "${make}"@en .
+      OPTIONAL { ?item wdt:P17 ?country . }
+      OPTIONAL { ?item wdt:P571 ?founded . }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "en,ru" . }
+    } LIMIT 1`;
+    
+    const url=`https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json`;
     const res=await fetch(url,{signal:controller.signal});
     clearTimeout(timeout);
     
     if(!res.ok)return null;
     const data=await res.json();
-    if(data.Results&&data.Results.length>0){
+    if(data.results&&data.results.bindings&&data.results.bindings.length>0){
+      const b=data.results.bindings[0];
       return{
-        make:make,
-        models:data.Results.slice(0,10).map(m=>m.Model_Name),
-        count:data.Results.length,
-        source:'NHTSA (США)'
+        name:b.itemLabel?.value||make,
+        country:b.countryLabel?.value||getCountry(make),
+        founded:b.founded?.value||'Неизвестно',
+        source:'Wikidata'
       };
     }
     return null;
   }catch(e){
-    console.warn('NHTSA API недоступен или таймаут:',e.message);
+    console.warn('Wikidata API недоступен:',e.message);
     return null;
   }
 }
 
-function displayNHTSA(nhtsaData){
-  if(!nhtsaData){
-    nhtsaInfo.classList.remove('show');
-    return;
-  }
-  nhtsaGrid.innerHTML=`
-    <div class="nhtsa-item"><span>Марка</span><b>${nhtsaData.make}</b></div>
-    <div class="nhtsa-item"><span>Моделей в базе</span><b>${nhtsaData.count}</b></div>
-    <div class="nhtsa-item" style="grid-column:span 2"><span>Примеры моделей</span><b style="font-size:10px">${nhtsaData.models.slice(0,5).join(', ')}</b></div>
-    <div class="nhtsa-item" style="grid-column:span 2"><span>Источник</span><b style="font-size:10px">${nhtsaData.source}</b></div>
+// ==================== ОТОБРАЖЕНИЕ РАСШИРЕННЫХ ДАННЫХ ====================
+async function displayExtendedInfo(car){
+  const bodyInfo=getBodyTypeInfo(car.bodyType);
+  const country=car.country||getCountry(car.make);
+  
+  extendedGrid.innerHTML=`
+    <div class="extended-item"><span>Тип кузова</span><b>${bodyInfo.icon} ${bodyInfo.name}</b></div>
+    <div class="extended-item"><span>Страна</span><b>🌍 ${country}</b></div>
+    <div class="extended-item"><span>Описание</span><b style="font-size:10px">${bodyInfo.desc}</b></div>
+    <div class="extended-item"><span>Цена</span><b>$ ${car.price.toLocaleString('ru-RU')}</b></div>
   `;
-  nhtsaInfo.classList.add('show');
+  extendedInfo.classList.add('show');
+  
+  // Запрос к Wikidata в фоне (не блокирует)
+  fetchWikidata(car.make).then(wikiData=>{
+    if(wikiData){
+      extendedGrid.innerHTML+=`
+        <div class="extended-item" style="grid-column:span 2"><span>Wikidata</span><b style="font-size:10px">${wikiData.name}${wikiData.founded!=='Неизвестно'?' · '+wikiData.founded:''}</b></div>
+      `;
+    }
+  }).catch(()=>{});
 }
 
 // ==================== СКАНИРОВАНИЕ ====================
@@ -910,34 +1147,36 @@ btnScan.addEventListener('click',async()=>{
   camWrap.classList.add('scanning');
   resultPanel.classList.remove('show');
   savedEl.classList.remove('show');
-  nhtsaInfo.classList.remove('show');
+  extendedInfo.classList.remove('show');
   sfx.scan();
   
   try{
     const predictions=await multiScan();
     console.log('Усреднённые предсказания:',predictions);
     
-    displayResults(predictions);
+    // Проверяем кэш
+    const cacheKey=predictions.map(p=>p.label).join('|');
+    let matches;
+    
+    if(cache.has(cacheKey)){
+      matches=cache.get(cacheKey);
+      console.log('Результат из кэша');
+    }else{
+      matches=matchWithDB(predictions);
+      cache.set(cacheKey,matches);
+      if(cache.size>50){
+        const firstKey=cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+      saveCache();
+    }
+    
+    displayResults(predictions,matches);
     setStatus('✓ Анализ завершён','ok');
     
     scans++;
     localStorage.setItem('waink_scans',scans);
     scanCounter.textContent=`Сканирований: ${scans}`;
-    
-    // ЗАПРОС К NHTSA — НЕБЛОКИРУЮЩИЙ (запускается в фоне)
-    const matches=matchWithDB(predictions);
-    if(matches.length>0){
-      const topMake=matches[0].car.make;
-      fetchNHTSA(topMake).then(nhtsaData=>{
-        if(nhtsaData){
-          displayNHTSA(nhtsaData);
-        }else{
-          nhtsaInfo.classList.remove('show');
-        }
-      }).catch(()=>{
-        nhtsaInfo.classList.remove('show');
-      });
-    }
     
   }catch(e){
     console.error('Ошибка сканирования:',e);
@@ -951,7 +1190,7 @@ btnScan.addEventListener('click',async()=>{
 });
 
 // ==================== ОТОБРАЖЕНИЕ ====================
-function displayResults(predictions){
+function displayResults(predictions,matches){
   aiRaw.innerHTML=predictions.map((p,i)=>{
     const translated=translateLabel(p.label);
     return`<div class="pred ${i===0?'top':''}">
@@ -959,8 +1198,6 @@ function displayResults(predictions){
       <span class="conf">${(p.score*100).toFixed(1)}%</span>
     </div>`;
   }).join('');
-  
-  const matches=matchWithDB(predictions);
   
   if(matches.length>0){
     matchedBox.style.display='block';
@@ -977,8 +1214,15 @@ function displayResults(predictions){
     
     matchesEl.querySelectorAll('.match').forEach((el,i)=>{
       el.addEventListener('mouseenter',()=>sfx.hover());
-      el.addEventListener('click',()=>{sfx.click();selectMatch(matches[i],el)});
+      el.addEventListener('click',()=>{
+        sfx.click();
+        selectMatch(matches[i],el);
+        displayExtendedInfo(matches[i].car);
+      });
     });
+    
+    // Показываем расширенные данные для первого результата
+    displayExtendedInfo(matches[0].car);
     
     resultActions.innerHTML=`
       <button class="btn" id="btnRescan">🔄 ЕЩЁ РАЗ</button>
@@ -1002,15 +1246,17 @@ function displayResults(predictions){
   resultPanel.classList.add('show');
 }
 
-// ==================== МАППИНГ ====================
+// ==================== МАППИНГ С СИНОНИМАМИ ====================
 function matchWithDB(predictions){
   const scores={};
   for(const pred of predictions){
     const label=pred.label.toLowerCase();
     const words=label.split(/[\s,\-]+/);
+    
     for(const car of DB){
       let matchCount=0;
       const matchedLabels=[];
+      
       for(const kw of car.kw){
         const kwLower=kw.toLowerCase();
         if(label.includes(kwLower)){
@@ -1020,6 +1266,18 @@ function matchWithDB(predictions){
           }
         }
       }
+      
+      // Проверка синонимов
+      const makeLower=car.make.toLowerCase();
+      if(SYNONYMS[makeLower]){
+        for(const syn of SYNONYMS[makeLower]){
+          if(label.includes(syn)){
+            matchCount++;
+            break;
+          }
+        }
+      }
+      
       if(matchCount>0){
         if(!scores[car.id])scores[car.id]={car,score:0,matches:[]};
         scores[car.id].score+=pred.score*matchCount;
@@ -1027,6 +1285,7 @@ function matchWithDB(predictions){
       }
     }
   }
+  
   Object.values(scores).forEach(s=>{
     const seen=new Set();
     s.matches=s.matches.filter(m=>{
@@ -1035,6 +1294,7 @@ function matchWithDB(predictions){
       return true;
     });
   });
+  
   const sorted=Object.values(scores).sort((a,b)=>b.score-a.score);
   const maxScore=sorted[0]?.score||1;
   sorted.forEach(s=>s.score=(s.score/maxScore)*100);
@@ -1057,17 +1317,22 @@ function saveMatch(match){
   money+=reward;
   localStorage.setItem('waink_money',money);
   moneyEl.textContent='$ '+money.toLocaleString('ru-RU');
+  
+  // Добавляем в историю
+  addToHistory(car.make,car.model,match.score);
+  
   savedEl.classList.add('show');
   savedEl.innerHTML=`
     <b>✓ ${car.make} ${car.model}</b>
     <div style="color:var(--muted);font-size:12px;margin-top:6px;font-family:var(--mono)">
+      ${car.country} · ${getBodyTypeInfo(car.bodyType).name}<br>
       Рыночная цена: $ ${price.toLocaleString('ru-RU')}<br>
       Награда за разведданные: +$ ${reward}
     </div>
   `;
   toast(`+$${reward} · ${car.make} ${car.model}`,'good');
   sfx.save();
-  setTimeout(()=>{resultPanel.classList.remove('show');savedEl.classList.remove('show');selectedMatch=null},3000);
+  setTimeout(()=>{resultPanel.classList.remove('show');savedEl.classList.remove('show');extendedInfo.classList.remove('show');selectedMatch=null},3000);
 }
 
 // ==================== УТИЛИТЫ ====================
