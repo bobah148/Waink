@@ -923,27 +923,22 @@ btnScan.addEventListener('click',async()=>{
     localStorage.setItem('waink_scans',scans);
     scanCounter.textContent=`Сканирований: ${scans}`;
     
-    // Запрос к NHTSA для первой найденной марки
+
+// Запрос к NHTSA — НЕБЛОКИРУЮЩИЙ
     const matches=matchWithDB(predictions);
     if(matches.length>0){
       const topMake=matches[0].car.make;
-      setStatus('📋 Запрос к базе NHTSA...','working');
-      const nhtsaData=await fetchNHTSA(topMake);
-      displayNHTSA(nhtsaData);
-      setStatus('✓ Данные получены','ok');
+      // Запускаем запрос асинхронно, НЕ ждём его
+      fetchNHTSA(topMake).then(nhtsaData=>{
+        if(nhtsaData){
+          displayNHTSA(nhtsaData);
+        }else{
+          nhtsaInfo.classList.remove('show');
+        }
+      }).catch(()=>{
+        nhtsaInfo.classList.remove('show');
+      });
     }
-    
-  }catch(e){
-    console.error('Ошибка сканирования:',e);
-    setStatus('Ошибка: '+e.message,'err');
-    toast('Ошибка сканирования','bad');
-    sfx.error();
-  }finally{
-    btnScan.disabled=!stream&&!classifier;
-    camWrap.classList.remove('scanning');
-  }
-});
-
 // ==================== ОТОБРАЖЕНИЕ ====================
 function displayResults(predictions){
   aiRaw.innerHTML=predictions.map((p,i)=>{
